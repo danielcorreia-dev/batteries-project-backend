@@ -2,6 +2,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using WepApi.Interfaces;
+using WepApi.Services;
 
 namespace WepApi
 {
@@ -15,6 +17,9 @@ namespace WepApi
                 configuration.GetConnectionString("BatteriesConnection")));
 
             services.AddScoped<IBatteriesProjectDbContext>( provider => provider.GetService<BatteriesProjectDbContext>());
+            services.AddScoped<ITokenService, TokenService>();
+            services.AddScoped<IRefreshTokenService, RefreshTokenService>();
+
 
             return services;
 
