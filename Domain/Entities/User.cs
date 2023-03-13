@@ -19,6 +19,7 @@ namespace Domain.Entities
         public string ProfilePhoto { get; set; }
         public Guid RefreshToken { get; set; }
         public DateTime ExpiryTime { get; set; }
+        public bool RememberMe { get; set; }
 
         //Field
         [StringLength(20, MinimumLength = 10)]
