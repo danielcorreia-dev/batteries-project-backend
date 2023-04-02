@@ -41,8 +41,7 @@ namespace WepApi.Services
                 var claimsList = new List<Claim>
                 {
                     new Claim(ClaimTypes.Email, user.Email),
-                    new Claim(ClaimTypes.Name, user.Name),
-                    new Claim(ClaimTypes.Role, Enum.GetName(user.Role))
+                    new Claim(ClaimTypes.Name, user.Nick),
                 };
 
                 var identity = new ClaimsIdentity(claimsList);

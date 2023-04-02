@@ -71,7 +71,7 @@ namespace WepApi.Controllers
 
             await _refreshTokenService.SaveRefreshTokenAsync(dbUser.Email, refresh_token, cancellationToken);
 
-            var resultObj = new SigninResponseModel(dbUser, access_token, refresh_token);
+            var resultObj = new SigninResponseModel(dbUser.Nick, access_token, refresh_token);
 
             return Ok(resultObj);
         }
@@ -103,10 +103,8 @@ namespace WepApi.Controllers
             var newUser = new User()
             {
                 Email = _signupRequestModel.Email,
-                Name = _signupRequestModel.Name,
+                Nick = _signupRequestModel.Nick,
                 Password = _signupRequestModel.Password,
-                Role = Role.Client //By default when an user does log in his role is client/3
-
             };
             await _dbContext.AddAsync(newUser, cancellationToken);
             await _dbContext.SaveChangesAsync(cancellationToken);
@@ -171,13 +169,13 @@ namespace WepApi.Controllers
                 if (dbUser == null)
                     return NotFound();
 
-                return Ok(new SigninResponseModel(dbUser, newAccessToken, newRefreshToken));
+                return Ok(new SigninResponseModel(dbUser.Nick, newAccessToken, newRefreshToken));
 
             }
 
             var _newAccessToken = _tokenService.GenerateToken(null, principal);
 
-            var response = new SigninResponseModel(dbUser, _newAccessToken, Guid.Parse(savedRefreshToken));
+            var response = new SigninResponseModel(dbUser.Nick, _newAccessToken, Guid.Parse(savedRefreshToken));
             return Ok(response);
         }
 

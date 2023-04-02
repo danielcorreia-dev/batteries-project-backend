@@ -2,14 +2,14 @@
 
 namespace Domain.Models.Params
 {
-    public class SignupRequestModel
-    {
+    public record SignupRequestModel
+    (
         [Required]
-        public string Name { get; set; }
+        string Nick,
         [Required]
         [EmailAddress]
-        public string Email { get; set; }
+        string Email,
         [Required]
-        public string Password { get; set; }
-    }
+        string Password
+    );
 }

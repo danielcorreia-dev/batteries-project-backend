@@ -1,20 +1,16 @@
-﻿using Domain.Entities;
-using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Domain.Models.Params
 {
-    public class SigninRequestModel
-    {
-
+    public record SigninRequestModel
+    (
         [EmailAddress]
         [Required]
-        public string Email { get; set; }
+        string Email,
         [Required]
-        public string Password { get; set; }
+        string Password,
         [Required]
-        public string Name { get; set; }
-        public bool RememberMe { get; set; }
-
-    }
+        string Nick,
+        bool RememberMe
+    );
 }
