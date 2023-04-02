@@ -4,14 +4,22 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Infrastructure.Configurations
 {
-    public class UserConfiguration : IEntityTypeConfiguration<User>
+    public sealed class UserConfiguration : IEntityTypeConfiguration<User>
     {
         public void Configure(EntityTypeBuilder<User> builder)
         {
-            builder.Property(u => u.Name).IsRequired();
-            builder.Property(u => u.Role).IsRequired();
-            builder.Property(u => u.Email).IsRequired();
-            builder.Property(u => u.Password).IsRequired();
+            builder.HasIndex(x => x.Nick).IsUnique();
+            builder.HasIndex(x => x.Email).IsUnique();
+
+            builder.Property(u => u.Nick).IsRequired().HasMaxLength(200);
+            builder.Property(u => u.Email).IsRequired().HasMaxLength(200);
+            builder.Property(u => u.Password).IsRequired().HasMaxLength(200);
+
+            builder.HasMany(u => u.Companies)
+                .WithOne(ucp => ucp.User)
+                .HasForeignKey(ucp => ucp.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
+
     }
 }

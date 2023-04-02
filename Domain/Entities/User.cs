@@ -3,24 +3,26 @@ using Domain.Enums;
 using Domain.Exceptions;
 using Microsoft.AspNetCore.Identity;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
 namespace Domain.Entities
 {
-    public class User: BaseEntity
+    public sealed class User: BaseEntity
     {
-        public string Name { get; set; }
+        public User()
+        {
+            List<User> users = new List<User>();
+        }
+
+        public List<UserCompanyPlace> Companies { get; set; }
+        public string Nick { get; set; }
         [Email]
         public string Email { get; set; }
-        public double Score { get; set; }
-        public Gender Gender { get; set; }
-        public Role Role { get; set; }
-        public string ProfilePhoto { get; set; }
         public Guid RefreshToken { get; set; }
         public DateTime ExpiryTime { get; set; }
         public bool RememberMe { get; set; }
-
         //Field
         [StringLength(20, MinimumLength = 10)]
         private string _password;
