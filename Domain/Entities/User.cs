@@ -1,5 +1,4 @@
 ﻿using DataAnnotationsExtensions;
-using Domain.Enums;
 using Domain.Exceptions;
 using Microsoft.AspNetCore.Identity;
 using System;
