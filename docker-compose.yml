@@ -1,0 +1,37 @@
+version: "1.0"
+services:
+  batteries-project-backend:
+    build: 
+      context: ./
+    environment:
+      DB_CONNECTIONSTRING: "Server=mssql;Database=BatteriesProject; User Id=SA;Password=B4tter1esPr0ject;"
+      ASPNETCORE_ENVIRONMENT: "Development"
+    ports:
+      - "3000:80"
+    networks:
+      - batteries-project-network
+    depends_on:
+      - mssql
+
+  mssql:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "B4tter1esPr0ject"
+      MSSQL_USER: ""
+      MSSQL_PASSWORD: ""
+      MSSQL_PID: "Developer"
+      MSSQL_AGENT_ENABLED: "False"
+    ports:
+      - "1433:1433"
+    networks:
+      - batteries-project-network
+    volumes:
+      - mssql-data:/var/opt/mssql
+
+networks: 
+    batteries-project-network:
+        driver: bridge
+
+volumes:
+  mssql-data:
