@@ -1,5 +1,4 @@
 ﻿using Domain.Entities;
-using Domain.Enums;
 using Domain.Models.Params;
 using Domain.Models.Results;
 using Infrastructure;
