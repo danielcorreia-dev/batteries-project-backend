@@ -8,9 +8,9 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Runtime.InteropServices;
 using System.Security.Claims;
 using System.Text;
-using WepApi.Interfaces;
+using WebApi.Interfaces;
 
-namespace WepApi.Services
+namespace WebApi.Services
 {
     public class TokenService : ITokenService
     {

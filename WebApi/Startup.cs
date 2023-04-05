@@ -7,9 +7,9 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using System;
 using System.Collections.Generic;
-using WepApi.Extensions;
+using WebApi.Extensions;
 
-namespace WepApi
+namespace WebApi
 {
     public class Startup
     {

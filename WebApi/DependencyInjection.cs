@@ -2,10 +2,10 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using WepApi.Interfaces;
-using WepApi.Services;
+using WebApi.Interfaces;
+using WebApi.Services;
 
-namespace WepApi
+namespace WebApi
 {
     public static class DependencyInjection
     {

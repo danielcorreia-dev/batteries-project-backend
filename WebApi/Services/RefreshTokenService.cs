@@ -3,9 +3,9 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using WepApi.Interfaces;
+using WebApi.Interfaces;
 
-namespace WepApi.Services
+namespace WebApi.Services
 {
     public class RefreshTokenService : IRefreshTokenService
     {

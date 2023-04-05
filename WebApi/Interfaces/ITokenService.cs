@@ -2,7 +2,7 @@
 using System.Runtime.InteropServices;
 using System.Security.Claims;
 
-namespace WepApi.Interfaces
+namespace WebApi.Interfaces
 {
     public interface ITokenService
     {

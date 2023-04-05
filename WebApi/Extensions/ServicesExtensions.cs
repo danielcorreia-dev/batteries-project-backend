@@ -5,7 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Collections.Generic;
 using System.Text;
 
-namespace WepApi.Extensions
+namespace WebApi.Extensions
 {
     public static class ServicesExtensions
     {

@@ -2,7 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace WepApi.Interfaces
+namespace WebApi.Interfaces
 {
     public interface IRefreshTokenService
     {

@@ -12,9 +12,9 @@ using System;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using WepApi.Interfaces;
+using WebApi.Interfaces;
 
-namespace WepApi.Controllers
+namespace WebApi.Controllers
 {
     [ApiController]
     [Route("[Controller]")]
