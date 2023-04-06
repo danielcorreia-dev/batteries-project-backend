@@ -2,6 +2,8 @@ FROM mcr.microsoft.com/dotnet/sdk:5.0-buster-slim AS build-env
 
 WORKDIR /app
 
+LABEL version="1.0" description="Faz deploy e cria uma imagem customizada baseada em duas imagens da Microsoft" org.opencontainers.image.authors="eugeniolopesfernandeslima1997@outlook.com"
+
 # Copy csproj and restore as distinct layers
 COPY /WebApi/WebApi.csproj /WebApi/
 COPY /Infrastructure/Infrastructure.csproj /Infrastructure/
