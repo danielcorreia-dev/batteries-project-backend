@@ -10,7 +10,7 @@ namespace Infrastructure
         {}
 
 
-        public DbSet<UserCompanyPlace> UserCompanyPlaces { get; set; }
+        public DbSet<UserCompanyScores> UserCompanyScores { get; set; }
         public DbSet<CompanyBenefit> CompanyBenefits { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<Company> Companies { get; set; }

@@ -12,10 +12,9 @@ namespace Domain.Entities
     {
         public User()
         {
-            List<User> users = new List<User>();
         }
 
-        public List<UserCompanyPlace> Companies { get; set; }
+        public List<UserCompanyScores> Companies { get; set; }
         public string Nick { get; set; }
         [Email]
         public string Email { get; set; }

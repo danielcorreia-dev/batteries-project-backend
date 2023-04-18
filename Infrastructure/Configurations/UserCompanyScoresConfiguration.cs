@@ -4,11 +4,10 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Infrastructure.Configurations
 {
-    public sealed class UserCompanyPlaceConfiguration : IEntityTypeConfiguration<UserCompanyPlace>
+    public sealed class UserCompanyScoresConfiguration : IEntityTypeConfiguration<UserCompanyScores>
     {
-        public void Configure(EntityTypeBuilder<UserCompanyPlace> builder)
+        public void Configure(EntityTypeBuilder<UserCompanyScores> builder)
         {
-            builder.Property(ucp => ucp.Place).IsRequired();
 
             builder.HasKey(ucp => new { ucp.UserId, ucp.CompanyId });
 
