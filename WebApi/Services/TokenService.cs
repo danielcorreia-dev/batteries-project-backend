@@ -78,7 +78,7 @@ namespace WebApi.Services
                 ValidateAudience = false,
                 ValidateIssuer = false,
                 ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration.GetValue("string", "SecretyKey"))), //    private key/ secret key
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration.GetValue<string>("SecretyKey"))), //    private key/ secret key
                 ValidateLifetime = false,
             };
 
