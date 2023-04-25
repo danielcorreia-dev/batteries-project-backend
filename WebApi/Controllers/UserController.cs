@@ -87,7 +87,7 @@ namespace WebApi.Controllers
         /// <param name="id">O id, do usuário, a ser deletado</param>
         /// <param name="cancellationToken">Um token para o caso do solicitante cancelar a requisição</param>
         /// <returns>Status Code 204 (NoContent)</returns>
-        //GET: user/{id}
+        //DELETE: user/{id}
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAsync(int id, CancellationToken cancellationToken)
         {
@@ -106,6 +106,5 @@ namespace WebApi.Controllers
 
             return NoContent();
         }
-
     }
 }
