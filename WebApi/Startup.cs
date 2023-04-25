@@ -7,6 +7,8 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using System;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.Authorization;
 using WebApi.Extensions;
 
 namespace WebApi
@@ -41,12 +43,10 @@ namespace WebApi
                    s.SerializerSettings.Converters.Add(new StringEnumConverter());
                });
 
-
             services.ConfigureSqlContext(Configuration);
             services.ConfigureAuthentication(Configuration);
+            services.ConfigureAuthorization();
             services.ConfigureCors(Configuration, MyAllowSpecificOrigins);
-
-
 
         }
 
@@ -68,10 +68,11 @@ namespace WebApi
             app.UseAuthentication();
 
             app.UseAuthorization();
-
+            
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapControllers();
+                endpoints.MapControllers()
+                    .RequireAuthorization(); // aplica o filtro de autorização global em todos os endpoints do controlador
             });
         }
     }
