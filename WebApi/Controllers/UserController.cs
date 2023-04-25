@@ -2,7 +2,9 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Domain.Entities;
 using Infrastructure;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 namespace WebApi.Controllers
@@ -31,6 +33,7 @@ namespace WebApi.Controllers
         /// </returns>
 
         //GET: user/{id}
+        [AllowAnonymous]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetByIdAsync(int id, CancellationToken cancellationToken)
         {
@@ -52,7 +55,7 @@ namespace WebApi.Controllers
 
             return Ok(dbUser);
         }
-
+        
         /// <summary>
         /// Listar somente as empresas que o usuário recebeu pontos
         /// </summary>
@@ -60,7 +63,6 @@ namespace WebApi.Controllers
         /// <param name="cancellationToken">Um token para o caso do solicitante cancelar a requisição</param>
         /// <returns>Uma lista de empresas que o usuário recebeu pontos</returns>
         //GET: user/{id}/company
-
         [HttpGet("{id}/companies/")]
         public async Task<IActionResult> GetCompaniesByUserIdAsync(int userId, CancellationToken cancellationToken)
         {
@@ -77,6 +79,32 @@ namespace WebApi.Controllers
                 .ToListAsync(cancellationToken);
 
             return Ok(userCompanies);
+        }
+        
+        /// <summary>
+        /// Deletar usuário pelo Id
+        /// </summary>
+        /// <param name="id">O id, do usuário, a ser deletado</param>
+        /// <param name="cancellationToken">Um token para o caso do solicitante cancelar a requisição</param>
+        /// <returns>Status Code 204 (NoContent)</returns>
+        //GET: user/{id}
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteAsync(int id, CancellationToken cancellationToken)
+        {
+            //verificando se um determinado usuario não existe no banco
+            if (!await _dbContext.Users
+                    .AnyAsync(u => u.Id == id, cancellationToken))
+            {
+                return NotFound("Unable to find User");
+            }
+
+            var dbUser = await _dbContext.Users
+                    .SingleOrDefaultAsync(u => u.Id == id);
+
+            _dbContext.Remove(dbUser);
+            _dbContext.SaveChangesAsync();
+
+            return NoContent();
         }
 
     }
