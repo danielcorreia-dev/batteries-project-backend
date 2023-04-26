@@ -72,9 +72,9 @@ namespace WebApi.Controllers
                 .SelectMany(u => u.Companies)
                 .Select(uc => new
                 {
-                    scores = uc.Scores,
-                    company = uc.Company,
-                    benefits = uc.Company.Benefits
+                    Scores = uc.Scores,
+                    Company = uc.Company,
+                    Benefits = uc.Company.Benefits
                 })
                 .ToListAsync(cancellationToken);
 
