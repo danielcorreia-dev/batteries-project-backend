@@ -99,10 +99,10 @@ namespace WebApi.Controllers
             }
 
             var dbUser = await _dbContext.Users
-                    .SingleOrDefaultAsync(u => u.Id == id);
+                    .SingleOrDefaultAsync(u => u.Id == id,cancellationToken);
 
             _dbContext.Remove(dbUser);
-            _dbContext.SaveChangesAsync();
+            _dbContext.SaveChangesAsync(cancellationToken);
 
             return NoContent();
         }
