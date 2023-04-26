@@ -106,5 +106,44 @@ namespace WebApi.Controllers
 
             return NoContent();
         }
+        
+        /// <summary>
+        /// Logar como empresa
+        /// </summary>
+        /// <param name="userId">O id do usuário</param>
+        /// <param name="companyId">O id da empresa</param>
+        /// <param name="cancellationToken">Um token para o caso do solicitante cancelar a requisição</param>
+        /// <returns>Status Code 200 {"Id": {id}, "Title":"someTitle", "Address":"someAddress"}</returns>
+        //GET: user/{id}/company/{id}
+        [HttpGet("{userId}/company/{companyId}")]
+        public async Task<IActionResult> GetCompanyFromUserByIdAsync(int userId, int companyId, CancellationToken cancellationToken)
+        {
+            ///verifica se não existe a tal empresa e caso não exista será NotFound
+            if (!await _dbContext.Users
+                    .AsNoTracking()
+                    .Where(u => u.Id == userId)
+                    .SelectMany(u => u.Companies)
+                    .AnyAsync(uc => uc.CompanyId == companyId, cancellationToken))
+            {
+                return NotFound("Unable to find company");
+            }
+            
+            
+            var dbCompany = await _dbContext.Users
+                .Where(u => u.Id == userId)
+                .SelectMany(u => u.Companies)
+                .Where(uc => uc.CompanyId == companyId)
+                .Select(uc => new
+                {
+                    Id = uc.CompanyId,
+                    Title = uc.Company.Title,
+                    Address = uc.Company.Address
+                })
+                .AsNoTracking()
+                .ToListAsync(cancellationToken);
+
+            return Ok(dbCompany);
+
+        }
     }
 }
