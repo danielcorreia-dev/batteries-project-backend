@@ -125,7 +125,7 @@ namespace WebApi.Controllers
                     .SelectMany(u => u.Companies)
                     .AnyAsync(uc => uc.CompanyId == companyId, cancellationToken))
             {
-                return NotFound("Unable to find company");
+                return NotFound("Unable to find company, cannot to log in");
             }
             
             
