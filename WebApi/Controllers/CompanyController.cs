@@ -86,6 +86,30 @@ namespace WebApi.Controllers
 
         }
 
+        /// <summary>
+        /// Deletar empresa
+        /// </summary>
+        /// <param name="id">O id da empresa</param>
+        /// <param name="cancellationToken">Usado para cancelar a requisição</param>
+        /// <returns>NoContent()</returns>
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteCompanyByIdAsync(int id, CancellationToken cancellationToken)
+        {
+            if (!await _dbContext.Companies.AnyAsync(c => c.Id == id, cancellationToken))
+            {
+                return NotFound("Unable to find company");
+            }
+
+            var dbCompany = await _dbContext.Companies
+                .AsNoTracking()
+                .SingleOrDefaultAsync(c => c.Id == id, cancellationToken);
+            
+            _dbContext.Companies.Remove(dbCompany);
+            _dbContext.SaveChangesAsync(cancellationToken);
+
+            return NoContent();
+        }
+   
         
     }
 }
