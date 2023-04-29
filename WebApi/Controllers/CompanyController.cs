@@ -109,7 +109,43 @@ namespace WebApi.Controllers
 
             return NoContent();
         }
-   
+        
+        /// <summary>
+        /// Desabilita o beneficio de uma empresa
+        /// </summary>
+        /// <param name="id">O id da empresa</param>
+        /// <param name="cancellationToken">Usado para cancelar a requisição</param>
+        /// <returns>Ok()</returns>
+        [HttpDelete("{id}/benefits")]
+        public async Task<IActionResult> DeleteByIdAsync(int id, CancellationToken cancellationToken)
+        {
+            //verificando se a empresa, em questão, contém benefícios
+            var benefits = await _dbContext.Companies
+                        .Where(c => c.Id == id)
+                        .Include(c => c.Benefits)
+                        .SelectMany(cb => cb.Benefits)
+                        .ToListAsync(cancellationToken);
+
+            if (benefits.Count == 0)
+            {
+                return NotFound("This company has no benefits");
+            }
+
+            var companyBenefits = await _dbContext.Companies
+                .Where(c => c.Id == id)
+                .Include(c => c.Benefits)
+                .SelectMany(c => c.Benefits)
+                .ToListAsync(cancellationToken);
+
+                foreach (var companyBenefit in companyBenefits)
+                {
+                    companyBenefit.Disabled = false;
+                }
+                
+            _dbContext.SaveChangesAsync(cancellationToken);
+
+            return Ok();
+        }
         
     }
 }
