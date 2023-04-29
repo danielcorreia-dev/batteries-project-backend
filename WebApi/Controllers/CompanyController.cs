@@ -54,7 +54,38 @@ namespace WebApi.Controllers
             return Ok(companyProfileData);
         }
         
-        
+        /// <summary>
+        /// Cadastrar empresa
+        /// </summary>
+        /// <param name="company">a empresa a ser cadastrada</param>
+        /// <param name="cancellationToken">Usado para cancelar a requisição</param>
+        /// <returns>Status Code 201 (Created)</returns>
+        [HttpPost]
+        public async Task<IActionResult> PostAsync([FromBody] CompanyModel company, CancellationToken cancellationToken)
+        {
+            
+            if (await _dbContext.Companies
+                    .AnyAsync(c => c.Title == company.Title, cancellationToken))
+            {
+                return BadRequest("Company already exists");
+            }
+
+            var newCompany = new Company()
+            {
+                Title = company.Title,
+                Address = company.Address,
+                CreatedAt = DateTimeOffset.Now,
+                Benefits = new List<CompanyBenefit>(),
+                Users = new List<UserCompanyScores>()
+            }; 
+
+            await _dbContext.Companies.AddAsync(newCompany, cancellationToken);
+            await _dbContext.SaveChangesAsync(cancellationToken);
+
+            return Created(nameof(GetByIdAsync), newCompany);
+
+        }
+
         
     }
 }
