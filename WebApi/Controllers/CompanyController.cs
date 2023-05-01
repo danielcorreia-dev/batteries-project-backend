@@ -179,5 +179,56 @@ namespace WebApi.Controllers
             return Created(nameof(GetByIdAsync), dbBenefit);
 
         }
+
+        /// <summary>
+        /// Adicionar pontos ao usuário // cadastrar um novo UserCompanyScore
+        /// </summary>
+        /// <param name="id">o id da empresa</param>
+        /// <param name="userCompanyScoresModel">O novo UserCompanyScore a ser inserido no banco</param>
+        /// <param name="cancellationToken">Usado para cancelar a requisição</param>
+        /// <returns>Created()</returns>
+        [HttpPost("{id}/user")]
+        public async Task<IActionResult> PostUserCompanyScoresAsync(int id, UserCompanyScoresModel userCompanyScoresModel, CancellationToken cancellationToken)
+        {
+            if (id != userCompanyScoresModel.CompanyId)
+            {
+                return BadRequest("The CompanyId of the url is different from the CompanyId of the body");
+            }
+            
+            if (!await _dbContext.Companies
+                    .AnyAsync(c => c.Id == id, cancellationToken))
+            {
+                return NotFound("Unable to find company");
+            }
+            
+            if (!await _dbContext.Users
+                    .AnyAsync(u => u.Id == userCompanyScoresModel.userId, cancellationToken))
+            {
+                return NotFound("Unable to find user");
+            }
+
+            //verificando se o objeto a ser inserido já existe no banco | erro de duplicata
+            if (await _dbContext.UserCompanyScores
+                    .AnyAsync(ucs =>
+                        ucs.CompanyId == id && ucs.UserId == userCompanyScoresModel.userId, cancellationToken))
+            {
+                return BadRequest($"CompanyId and UserId must be an unique value. " +
+                                  $"The record with UserId = {userCompanyScoresModel.userId} and CompanyId = {userCompanyScoresModel.CompanyId} already exists");
+            }
+            
+            //instanciando um novo objeto de UserCompanyScores com base nos valores de userCompanyScoresModel 
+            var newUsc = new UserCompanyScores()
+            {
+                Scores = userCompanyScoresModel.Scores,
+                CompanyId = userCompanyScoresModel.CompanyId,
+                UserId = userCompanyScoresModel.userId
+            };
+
+            await _dbContext.UserCompanyScores.AddAsync(newUsc, cancellationToken);
+            
+            await _dbContext.SaveChangesAsync(cancellationToken);
+
+            return Created(nameof(GetByIdAsync),newUsc);
+        }
     }
 }
