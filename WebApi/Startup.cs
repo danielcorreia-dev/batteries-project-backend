@@ -9,7 +9,9 @@ using System;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
+using Microsoft.OpenApi.Models;
 using WebApi.Extensions;
+using System.Linq;
 
 namespace WebApi
 {
@@ -37,17 +39,18 @@ namespace WebApi
 
             services.AddControllers()
 
-               .AddNewtonsoftJson(s =>
-               {
-                   s.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
-                   s.SerializerSettings.Converters.Add(new StringEnumConverter());
-               });
+                .AddNewtonsoftJson(s =>
+                {
+                    s.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+                    s.SerializerSettings.Converters.Add(new StringEnumConverter());
+                });
 
+
+            services.ConfigureSwaggerGen();
             services.ConfigureSqlContext(Configuration);
             services.ConfigureAuthentication(Configuration);
             services.ConfigureAuthorization();
             services.ConfigureCors(Configuration, MyAllowSpecificOrigins);
-
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -56,7 +59,9 @@ namespace WebApi
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                
+                app.UseSwaggerCustom();
+                app.UseSwaggerUICustom();
+
             }
 
             //app.UseHttpsRedirection();

@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.Text;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
+using Microsoft.OpenApi.Models;
+using System.Linq;
 
 namespace WebApi.Extensions
 {
@@ -67,6 +69,20 @@ namespace WebApi.Extensions
                 options.DefaultPolicy = new AuthorizationPolicyBuilder()
                     .RequireAuthenticatedUser()
                     .Build();
+            });
+        }
+
+        public static void ConfigureSwaggerGen(this IServiceCollection services)
+        {
+            services.AddSwaggerGen(swagger =>
+            {
+                swagger.SwaggerDoc("v1", new OpenApiInfo
+                {
+                    Version = "v1",
+                    Title = "BatteriesProject WebApi"
+                });
+                swagger.ResolveConflictingActions(apiDescriptions => apiDescriptions.First());
+
             });
         }
 
