@@ -12,6 +12,8 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using WebApi.Interfaces;
+using Microsoft.Extensions.Configuration;
+
 
 namespace WebApi.Controllers
 {
@@ -23,14 +25,17 @@ namespace WebApi.Controllers
         private readonly BatteriesProjectDbContext _dbContext;
         private readonly ITokenService _tokenService;
         private readonly IRefreshTokenService _refreshTokenService;
+        private readonly IConfiguration _configuration;
 
         public AuthController(BatteriesProjectDbContext dbContext,
             ITokenService tokenService,
-            IRefreshTokenService refreshTokenService)
+            IRefreshTokenService refreshTokenService,
+            IConfiguration configuration)
         {
             _dbContext = dbContext;
             _tokenService = tokenService;
             _refreshTokenService = refreshTokenService;
+            _configuration = configuration;
         }
 
         //POST: auth/sign-in
