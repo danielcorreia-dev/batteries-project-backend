@@ -8,6 +8,9 @@ namespace Infrastructure.Configurations
     {
         public void Configure(EntityTypeBuilder<Company> builder)
         {
+            builder.HasIndex(x => x.Title).IsUnique();
+
+            
             builder.Property(c => c.Title).IsRequired().HasMaxLength(200);
             builder.Property(c => c.Address).IsRequired().HasMaxLength(255);
 
