@@ -67,6 +67,13 @@ namespace WebApi.Controllers
         public async Task<IActionResult> GetCompaniesByUserIdAsync(int userId, CancellationToken cancellationToken)
         {
 
+            //verificando se um determinado usuario não existe no banco
+            if (!await _dbContext.Users
+                    .AnyAsync(u => u.Id == userId, cancellationToken))
+            {
+                return NotFound("Unable to find User");
+            } 
+            
             var userCompanies = await _dbContext.Users
                 .AsNoTracking()
                 .SelectMany(u => u.Companies)
@@ -118,6 +125,12 @@ namespace WebApi.Controllers
         [HttpGet("{userId}/company/{companyId}")]
         public async Task<IActionResult> GetCompanyFromUserByIdAsync(int userId, int companyId, CancellationToken cancellationToken)
         {
+            
+            if (!await _dbContext.Users.AnyAsync(u => u.Id == userId, cancellationToken))
+            {
+                return NotFound("Unable to find user, cannot to log in");
+            }
+            
             ///verifica se não existe a tal empresa e caso não exista será NotFound
             if (!await _dbContext.Users
                     .AsNoTracking()

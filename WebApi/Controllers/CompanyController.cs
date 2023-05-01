@@ -238,5 +238,40 @@ namespace WebApi.Controllers
 
             return Created(nameof(GetByIdAsync),newUsc);
         }
+        
+        /// <summary>
+        /// Atualiza as configurações da empresa
+        /// </summary>
+        /// <param name="id">O id da company a ser atualizada</param>
+        /// <param name="companyModel">Os novos dados da company</param>
+        /// <param name="cancellationToken">Usado para cancelar a requisição</param>
+        /// <returns>Ok()</returns>
+        [HttpPatch("{id}")]
+        public async Task<IActionResult> PatchAsync(int id, [FromBody] CompanyModel companyModel ,CancellationToken cancellationToken)
+        {
+            //verificando se uma determinado company existe no banco
+            if (!await _dbContext.Companies
+                    .AnyAsync(c => c.Id == id, cancellationToken))
+            {
+                return NotFound("Unable to find Company");
+            }
+            
+            //verificando se existe alguma company, no banco, cujo title é igual ao title do objeto vindo como parametro 
+            if (await _dbContext.Companies
+                    .AnyAsync(c => c.Title == companyModel.Title, cancellationToken))
+            {
+                return NotFound($"Company title named '{companyModel.Title}' already exists, please insert another name for title");
+            }
+
+            var dbCompany = await _dbContext.Companies
+                    .SingleOrDefaultAsync(c => c.Id == id, cancellationToken);
+
+            dbCompany.Title = companyModel.Title;
+            dbCompany.Address = companyModel.Address;
+
+            await _dbContext.SaveChangesAsync(cancellationToken);
+            return Ok();
+
+        }
     }
 }
