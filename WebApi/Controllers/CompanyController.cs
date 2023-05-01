@@ -148,7 +148,7 @@ namespace WebApi.Controllers
         }
 
         /// <summary>
-        /// Atualiza as configurações da empresa
+        /// Atualizar as configurações da empresa
         /// </summary>
         /// <param name="companyId">O id da empresa</param>
         /// <param name="benefitId">O id do beneficio</param>
@@ -156,7 +156,7 @@ namespace WebApi.Controllers
         /// <param name="cancellationToken">Usado para cancelar a requisição</param>
         /// <returns>Created()</returns>
         [HttpPut("{companyId}/benefit/{benefitId}")]
-        public async Task<IActionResult> PutAsync(int companyId, int benefitId, CompanyBenefitsModel companyBenefit, CancellationToken cancellationToken)
+        public async Task<IActionResult> PutAsync(int companyId, int benefitId, [FromBody] CompanyBenefitsModel companyBenefit, CancellationToken cancellationToken)
         {
             if (!await _dbContext.Companies
                     .AnyAsync(c => c.Id == companyId, cancellationToken))
@@ -196,7 +196,7 @@ namespace WebApi.Controllers
         /// <param name="cancellationToken">Usado para cancelar a requisição</param>
         /// <returns>Created()</returns>
         [HttpPost("{id}/user")]
-        public async Task<IActionResult> PostUserCompanyScoresAsync(int id, UserCompanyScoresModel userCompanyScoresModel, CancellationToken cancellationToken)
+        public async Task<IActionResult> PostUserCompanyScoresAsync(int id, [FromBody] UserCompanyScoresModel userCompanyScoresModel, CancellationToken cancellationToken)
         {
             if (id != userCompanyScoresModel.CompanyId)
             {
