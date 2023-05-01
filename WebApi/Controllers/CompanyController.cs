@@ -164,6 +164,14 @@ namespace WebApi.Controllers
                 return NotFound("Unable to find company");
             }
 
+            if (await _dbContext.Companies
+                    .Where(c => c.Id == companyId)
+                    .SelectMany(c => c.Benefits)
+                    .AnyAsync(cb => cb.Id == benefitId, cancellationToken))
+            {
+                return NotFound($"Unable to find benefit");
+            }
+            
             var dbBenefit = await _dbContext.Companies
                 .Where(c => c.Id == companyId)
                 .SelectMany(c => c.Benefits)
