@@ -146,6 +146,38 @@ namespace WebApi.Controllers
 
             return Ok();
         }
-        
+
+        /// <summary>
+        /// Atualiza as configurações da empresa
+        /// </summary>
+        /// <param name="companyId">O id da empresa</param>
+        /// <param name="benefitId">O id do beneficio</param>
+        /// <param name="companyBenefit">o objeto companyBenefits contendo os novos beneficios</param>
+        /// <param name="cancellationToken">Usado para cancelar a requisição</param>
+        /// <returns>Created()</returns>
+        [HttpPut("{companyId}/benefit/{benefitId}")]
+        public async Task<IActionResult> PutAsync(int companyId, int benefitId, CompanyBenefitsModel companyBenefit, CancellationToken cancellationToken)
+        {
+            if (!await _dbContext.Companies
+                    .AnyAsync(c => c.Id == companyId, cancellationToken))
+            {
+                return NotFound("Unable to find company");
+            }
+
+            var dbBenefit = await _dbContext.Companies
+                .Where(c => c.Id == companyId)
+                .SelectMany(c => c.Benefits)
+                .SingleOrDefaultAsync(cb => cb.Id == benefitId,cancellationToken);
+
+            //atualizando a referencia do banco
+            dbBenefit.Benefit = companyBenefit.Benefit;
+            dbBenefit.Description = companyBenefit.Description;
+            dbBenefit.ScoreNeeded = companyBenefit.ScoreNeeded;
+
+            await _dbContext.SaveChangesAsync(cancellationToken);
+
+            return Created(nameof(GetByIdAsync), dbBenefit);
+
+        }
     }
 }
