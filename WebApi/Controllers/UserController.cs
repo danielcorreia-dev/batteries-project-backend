@@ -44,7 +44,7 @@ namespace WebApi.Controllers
                 {
                     Email = u.Email,
                     Nick = u.Nick,
-                    TotalScore = u.Companies.Sum(uc => uc.Scores)
+                    TotalScore = u.Companies.Sum(uc => uc.Score)
                 })
                 .FirstOrDefaultAsync(cancellationToken);
 
@@ -79,7 +79,7 @@ namespace WebApi.Controllers
                 .SelectMany(u => u.Companies)
                 .Select(uc => new
                 {
-                    Scores = uc.Scores,
+                    Scores = uc.Score,
                     Company = uc.Company,
                     Benefits = uc.Company.Benefits
                 })

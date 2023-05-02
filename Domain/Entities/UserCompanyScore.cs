@@ -4,12 +4,12 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Domain.Entities
 {
-    public sealed class UserCompanyScores
+    public sealed class UserCompanyScore
     {
         public int UserId { get; set; }
         public User User { get; set; }
         public int CompanyId { get; set; }
         public Company Company { get; set; }
-        public int Scores { get; set; }
+        public int Score { get; set; }
     }
 }
