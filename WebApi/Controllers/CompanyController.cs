@@ -119,7 +119,7 @@ namespace WebApi.Controllers
         [HttpDelete("{id}/benefits")]
         public async Task<IActionResult> DeleteByIdAsync(int id, CancellationToken cancellationToken)
         {
-            //verificando se a empresa, em questão, contém benefícios
+
             var benefits = await _dbContext.Companies
                         .Where(c => c.Id == id)
                         .Include(c => c.Benefits)
@@ -177,7 +177,7 @@ namespace WebApi.Controllers
                 .SelectMany(c => c.Benefits)
                 .SingleOrDefaultAsync(cb => cb.Id == benefitId,cancellationToken);
 
-            //atualizando a referencia do banco
+
             dbBenefit.Benefit = companyBenefit.Benefit;
             dbBenefit.Description = companyBenefit.Description;
             dbBenefit.ScoreNeeded = companyBenefit.ScoreNeeded;
@@ -215,7 +215,6 @@ namespace WebApi.Controllers
                 return NotFound("Unable to find user");
             }
 
-            //verificando se o objeto a ser inserido já existe no banco | erro de duplicata
             if (await _dbContext.UserCompanyScores
                     .AnyAsync(ucs =>
                         ucs.CompanyId == id && ucs.UserId == userCompanyScoreModel.userId, cancellationToken))
@@ -224,7 +223,6 @@ namespace WebApi.Controllers
                                   $"The record with UserId = {userCompanyScoreModel.userId} and CompanyId = {userCompanyScoreModel.CompanyId} already exists");
             }
             
-            //instanciando um novo objeto de UserCompanyScores com base nos valores de userCompanyScoresModel 
             var newUsc = new UserCompanyScore()
             {
                 Score = userCompanyScoreModel.Score,
@@ -249,14 +247,12 @@ namespace WebApi.Controllers
         [HttpPatch("{id}")]
         public async Task<IActionResult> PatchAsync(int id, [FromBody] CompanyModel companyModel ,CancellationToken cancellationToken)
         {
-            //verificando se uma determinado company existe no banco
             if (!await _dbContext.Companies
                     .AnyAsync(c => c.Id == id, cancellationToken))
             {
                 return NotFound("Unable to find Company");
             }
             
-            //verificando se existe alguma company, no banco, cujo title é igual ao title do objeto vindo como parametro 
             if (await _dbContext.Companies
                     .AnyAsync(c => c.Title == companyModel.Title, cancellationToken))
             {

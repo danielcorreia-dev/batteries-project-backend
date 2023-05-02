@@ -67,7 +67,6 @@ namespace WebApi.Controllers
         public async Task<IActionResult> GetCompaniesByUserIdAsync(int userId, CancellationToken cancellationToken)
         {
 
-            //verificando se um determinado usuario não existe no banco
             if (!await _dbContext.Users
                     .AnyAsync(u => u.Id == userId, cancellationToken))
             {
@@ -98,7 +97,7 @@ namespace WebApi.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAsync(int id, CancellationToken cancellationToken)
         {
-            //verificando se um determinado usuario não existe no banco
+            
             if (!await _dbContext.Users
                     .AnyAsync(u => u.Id == id, cancellationToken))
             {
@@ -131,7 +130,6 @@ namespace WebApi.Controllers
                 return NotFound("Unable to find user, cannot to log in");
             }
             
-            ///verifica se não existe a tal empresa e caso não exista será NotFound
             if (!await _dbContext.Users
                     .AsNoTracking()
                     .Where(u => u.Id == userId)

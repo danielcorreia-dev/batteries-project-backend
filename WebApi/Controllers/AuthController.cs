@@ -45,7 +45,6 @@ namespace WebApi.Controllers
         public async Task<IActionResult> Signin([FromBody] SigninRequestModel signinRequestModel, CancellationToken cancellationToken)
         {
 
-            //Recover an user reference from database by the Email or PhoneNumber
             User dbUser = await _dbContext.Users
                 .AsNoTracking()
                 .SingleOrDefaultAsync(
@@ -60,12 +59,9 @@ namespace WebApi.Controllers
             {
                 return Unauthorized();
             }
-
-            //the RememberMe field is false by default and only on the Sign in is
-            //possible to define a value like true.
+            
             dbUser.RememberMe = signinRequestModel.RememberMe;
 
-            //update the user reference from database with a new value for RememberMe
             _dbContext.Update(dbUser);
             await _dbContext.SaveChangesAsync(cancellationToken);
 
@@ -88,17 +84,14 @@ namespace WebApi.Controllers
         {
 
 
-            //check whether the Password is valid or not
             bool isPasswordValid = ValidatePassword(_signupRequestModel.Password);
             if (!isPasswordValid) { return BadRequest(); }
 
 
-            //retrieves an user reference from the database based on email
             bool userExists = await _dbContext.Users
                     .AnyAsync(
                         u => u.Email == _signupRequestModel.Email, cancellationToken);
 
-            //check whether exists or not an user on the database related to that Email
             if (userExists)
             {
                 return UnprocessableEntity("User already exists");
