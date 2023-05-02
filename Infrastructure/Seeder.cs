@@ -115,25 +115,25 @@ namespace Infrastructure
             
             if (!context.UserCompanyScores.Any())
             {
-                var userCompanyScores = new List<UserCompanyScores>
+                var userCompanyScores = new List<UserCompanyScore>
                 {
                     new()
                     {
-                        Scores = 100,
+                        Score = 100,
                         CompanyId = 1,
                         UserId = 1,
             
                     },
                     new()
                     {
-                        Scores = 80,
+                        Score = 80,
                         CompanyId = 2,
                         UserId = 2,
             
                     },
                     new()
                     {
-                        Scores = 60,
+                        Score = 60,
                         CompanyId = 3,
                         UserId = 2,
             

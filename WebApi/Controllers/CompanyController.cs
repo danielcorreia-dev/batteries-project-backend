@@ -76,7 +76,7 @@ namespace WebApi.Controllers
                 Address = company.Address,
                 CreatedAt = DateTimeOffset.Now,
                 Benefits = new List<CompanyBenefit>(),
-                Users = new List<UserCompanyScores>()
+                Users = new List<UserCompanyScore>()
             }; 
 
             await _dbContext.Companies.AddAsync(newCompany, cancellationToken);
@@ -192,13 +192,13 @@ namespace WebApi.Controllers
         /// Adicionar pontos ao usuário // cadastrar um novo UserCompanyScore
         /// </summary>
         /// <param name="id">o id da empresa</param>
-        /// <param name="userCompanyScoresModel">O novo UserCompanyScore a ser inserido no banco</param>
+        /// <param name="userCompanyScoreModel">O novo UserCompanyScore a ser inserido no banco</param>
         /// <param name="cancellationToken">Usado para cancelar a requisição</param>
         /// <returns>Created()</returns>
         [HttpPost("{id}/user")]
-        public async Task<IActionResult> PostUserCompanyScoresAsync(int id, [FromBody] UserCompanyScoresModel userCompanyScoresModel, CancellationToken cancellationToken)
+        public async Task<IActionResult> PostUserCompanyScoresAsync(int id, [FromBody] UserCompanyScoreModel userCompanyScoreModel, CancellationToken cancellationToken)
         {
-            if (id != userCompanyScoresModel.CompanyId)
+            if (id != userCompanyScoreModel.CompanyId)
             {
                 return BadRequest("The CompanyId of the url is different from the CompanyId of the body");
             }
@@ -210,7 +210,7 @@ namespace WebApi.Controllers
             }
             
             if (!await _dbContext.Users
-                    .AnyAsync(u => u.Id == userCompanyScoresModel.userId, cancellationToken))
+                    .AnyAsync(u => u.Id == userCompanyScoreModel.userId, cancellationToken))
             {
                 return NotFound("Unable to find user");
             }
@@ -218,18 +218,18 @@ namespace WebApi.Controllers
             //verificando se o objeto a ser inserido já existe no banco | erro de duplicata
             if (await _dbContext.UserCompanyScores
                     .AnyAsync(ucs =>
-                        ucs.CompanyId == id && ucs.UserId == userCompanyScoresModel.userId, cancellationToken))
+                        ucs.CompanyId == id && ucs.UserId == userCompanyScoreModel.userId, cancellationToken))
             {
                 return BadRequest($"CompanyId and UserId must be an unique value. " +
-                                  $"The record with UserId = {userCompanyScoresModel.userId} and CompanyId = {userCompanyScoresModel.CompanyId} already exists");
+                                  $"The record with UserId = {userCompanyScoreModel.userId} and CompanyId = {userCompanyScoreModel.CompanyId} already exists");
             }
             
             //instanciando um novo objeto de UserCompanyScores com base nos valores de userCompanyScoresModel 
-            var newUsc = new UserCompanyScores()
+            var newUsc = new UserCompanyScore()
             {
-                Scores = userCompanyScoresModel.Scores,
-                CompanyId = userCompanyScoresModel.CompanyId,
-                UserId = userCompanyScoresModel.userId
+                Score = userCompanyScoreModel.Score,
+                CompanyId = userCompanyScoreModel.CompanyId,
+                UserId = userCompanyScoreModel.userId
             };
 
             await _dbContext.UserCompanyScores.AddAsync(newUsc, cancellationToken);

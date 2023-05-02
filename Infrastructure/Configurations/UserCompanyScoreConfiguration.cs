@@ -4,9 +4,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Infrastructure.Configurations
 {
-    public sealed class UserCompanyScoresConfiguration : IEntityTypeConfiguration<UserCompanyScores>
+    public sealed class UserCompanyScoreConfiguration : IEntityTypeConfiguration<UserCompanyScore>
     {
-        public void Configure(EntityTypeBuilder<UserCompanyScores> builder)
+        public void Configure(EntityTypeBuilder<UserCompanyScore> builder)
         {
 
             builder.HasKey(ucp => new { ucp.UserId, ucp.CompanyId });

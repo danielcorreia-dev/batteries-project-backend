@@ -14,7 +14,7 @@ namespace Domain.Entities
         {
         }
 
-        public List<UserCompanyScores> Companies { get; set; }
+        public List<UserCompanyScore> Companies { get; set; }
         public string Nick { get; set; }
         [Email]
         public string Email { get; set; }
