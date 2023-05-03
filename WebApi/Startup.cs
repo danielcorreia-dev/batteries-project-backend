@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.OpenApi.Models;
 using WebApi.Extensions;
 using System.Linq;
+using Microsoft.AspNetCore.Http;
 
 namespace WebApi
 {
@@ -76,6 +77,10 @@ namespace WebApi
             
             app.UseEndpoints(endpoints =>
             {
+                endpoints.MapGet("/", async context =>
+                {
+                    await context.Response.WriteAsync("Hello World!");
+                });
                 endpoints.MapControllers()
                     .RequireAuthorization(); // aplica o filtro de autorização global em todos os endpoints do controlador
             });
