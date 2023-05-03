@@ -4,7 +4,7 @@ services:
     build: 
       context: ./
     environment:
-      DB_CONNECTIONSTRING: "Server=mssql;Database=BatteriesProject; User Id=SA;Password=B4tter1esPr0ject;"
+      DB_CONNECTIONSTRING: "User ID=BatteriesAdmin;Password=12345678;Host=localhost;Port=5432;Database=Batteries;Pooling=true;"
       ASPNETCORE_ENVIRONMENT: "Development"
     ports:
       - "3000:80"
@@ -13,17 +13,14 @@ services:
     depends_on:
       - mssql
 
-  mssql:
-    image: mcr.microsoft.com/mssql/server:2019-latest
+  database:
+    image: postgres
     environment:
-      ACCEPT_EULA: "Y"
-      MSSQL_SA_PASSWORD: "B4tter1esPr0ject"
-      MSSQL_USER: ""
-      MSSQL_PASSWORD: ""
-      MSSQL_PID: "Developer"
-      MSSQL_AGENT_ENABLED: "False"
+      - POSTGRES_USER=BatteriesAdmin
+      - POSTGRES_PASSWORD=<insert_password>
+      - POSTGRES_DB=Batteries
     ports:
-      - "1433:1433"
+      - "5433:5432"
     networks:
       - batteries-project-network
     volumes:
