@@ -14,7 +14,7 @@ namespace WebApi
         public static IServiceCollection ConfigureSqlContext(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddDbContext<BatteriesProjectDbContext>(
-               options => options.UseNpgsql(GetConnectionString(configuration)));
+                options => options.UseNpgsql(GetConnectionString(configuration)));
 
             services.AddScoped<IBatteriesProjectDbContext>( provider => provider.GetService<BatteriesProjectDbContext>());
             services.AddScoped<ITokenService, TokenService>();
@@ -26,28 +26,10 @@ namespace WebApi
         private static string GetConnectionString(IConfiguration configuration)
         {
             var connectionString = configuration.GetConnectionString("BatteriesConnection");
-            var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
+            var databaseUrl = Environment.GetEnvironmentVariable("DB_CONNECTION");
             return string.IsNullOrEmpty(databaseUrl) 
                 ? connectionString 
-                : BuildConnectionStringFromUrl(databaseUrl);
-        }
-
-        private static string BuildConnectionStringFromUrl(string databaseUrl)
-        {
-            var databaseUri = new Uri(databaseUrl);
-            var userInfo = databaseUri.UserInfo.Split(":");
-            var builder = new NpgsqlConnectionStringBuilder()
-            {
-                Host = databaseUri.Host,
-                Port = databaseUri.Port,
-                Username = userInfo[0],
-                Password = userInfo[1],
-                Database = databaseUri.LocalPath.TrimStart('/'),
-                SslMode = SslMode.Require,
-                TrustServerCertificate = true
-            };
-
-            return builder.ToString();
+                : databaseUrl;
         }
     }
 }
