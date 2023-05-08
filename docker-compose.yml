@@ -1,34 +1,42 @@
-version: "3.8"
+version: '3.5'
+
 services:
-  batteries-project-backend:
-    build: 
+  api:
+    container_name: api_container
+    build:
       context: ./
     environment:
-      DB_CONNECTIONSTRING: "User ID=BatteriesAdmin;Password=12345678;Host=localhost;Port=5432;Database=Batteries;Pooling=true;"
+      DB_CONNECTION: "User ID=Batteries;Password=123456789;Host=postgres;Port=5432;Database=Batteries;Pooling=true;"
       ASPNETCORE_ENVIRONMENT: "Development"
+      ASPNETCORE_HTTP_PORT: https://+:3001
+      ASPNETCORE_URLS: http://+:3000
     ports:
-      - "3000:80"
+      - "3001:3001"
+      - "3000:3000"
     networks:
-      - batteries-project-network
+      - batteries
     depends_on:
-      - mssql
+      - postgres
 
-  database:
+  postgres:
+    container_name: postgres_container
     image: postgres
     environment:
-      - POSTGRES_USER=BatteriesAdmin
-      - POSTGRES_PASSWORD=<insert_password>
-      - POSTGRES_DB=Batteries
-    ports:
-      - "5433:5432"
-    networks:
-      - batteries-project-network
+      POSTGRES_USER: Batteries
+      POSTGRES_PASSWORD: 123456789
+      PGDATA: /data/postgres
     volumes:
-      - mssql-data:/var/opt/mssql
+      - postgres:/data/postgres
+    ports:
+      - "5432:5432"
+    networks:
+      - batteries
+    restart: unless-stopped
+    
 
-networks: 
-    batteries-project-network:
-        driver: bridge
+networks:
+  batteries:
+    driver: bridge
 
 volumes:
-  mssql-data:
+  postgres:
