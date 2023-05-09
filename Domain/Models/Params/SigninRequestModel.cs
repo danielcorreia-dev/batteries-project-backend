@@ -9,7 +9,6 @@ namespace Domain.Models.Params
         string Email,
         [Required]
         string Password,
-        [Required]
         string Nick,
         bool RememberMe
     );

@@ -24,10 +24,10 @@ namespace WebApi
         public Startup(IWebHostEnvironment env)
         {
             var Config = new ConfigurationBuilder()
-               .SetBasePath(env.ContentRootPath)
-               .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-               .AddJsonFile($"appsettings.{env}.json", optional: true)
-               .AddEnvironmentVariables();
+              .SetBasePath(env.ContentRootPath)
+              .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+              .AddJsonFile($"appsettings.{env}.json", optional: true)
+              .AddEnvironmentVariables();
             Configuration = Config.Build();
         }
 
