@@ -27,9 +27,29 @@ namespace WebApi
         {
             var connectionString = configuration.GetConnectionString("BatteriesConnection");
             var databaseUrl = Environment.GetEnvironmentVariable("DB_CONNECTION");
+            var databaseUri = Environment.GetEnvironmentVariable("DATABASE_URL");
+            
             return string.IsNullOrEmpty(databaseUrl) 
                 ? connectionString 
-                : databaseUrl;
+                : (string.IsNullOrEmpty(databaseUri)
+                    ? databaseUrl : BuildConnectionStringFromUrl(databaseUri));
+        }
+        
+        private static string BuildConnectionStringFromUrl(string databaseUriParam)
+        {
+            var databaseUri = new Uri(databaseUriParam);
+            var userInfo = databaseUri.UserInfo.Split(":");
+            var builder = new NpgsqlConnectionStringBuilder()
+            {
+                Host = databaseUri.Host,
+                Port = databaseUri.Port,
+                Username = userInfo[0],
+                Password = userInfo[1],
+                Database = databaseUri.LocalPath.TrimStart('/'),
+                SslMode = SslMode.Require,
+                TrustServerCertificate = true
+            };
+            return builder.ToString();
         }
     }
 }
