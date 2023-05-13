@@ -77,6 +77,10 @@ namespace WebApi
             
             app.UseEndpoints(endpoints =>
             {
+                endpoints.MapGet("/", async context =>
+                {
+                    await context.Response.WriteAsync("Hello World!");
+                });
                 endpoints.MapControllers()
                     .RequireAuthorization(); // aplica o filtro de autorização global em todos os endpoints do controlador
             });
