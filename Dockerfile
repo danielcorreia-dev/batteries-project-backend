@@ -19,4 +19,4 @@ FROM mcr.microsoft.com/dotnet/aspnet:5.0-buster-slim AS base
 WORKDIR /app
 COPY --from=build-env /app/out .
 RUN apt-get update && apt-get install -y libgdiplus
-ENTRYPOINT ["dotnet", "WebApi.dll"]
+ENTRYPOINT ["dotnet", "/app/WebApi.dll"]
