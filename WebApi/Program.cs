@@ -37,6 +37,14 @@ namespace WebApi
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
+                    var portVar = Environment.GetEnvironmentVariable("PORT");
+                    if (portVar is { Length: > 0 } && int.TryParse(portVar, out int port))
+                    {
+                        webBuilder.UseKestrel(options =>
+                        {
+                            options.ListenAnyIP(port);
+                        });
+                    }
                     webBuilder.UseStartup<Startup>();
                 });
     }
