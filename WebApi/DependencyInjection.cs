@@ -14,8 +14,7 @@ namespace WebApi
         public static IServiceCollection ConfigureSqlContext(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddDbContext<BatteriesProjectDbContext>(
-                options => options.UseNpgsql(configuration
-                    .GetConnectionString("BatteriesConnectionOnRailway")));
+                options => options.UseNpgsql(GetConnectionString(configuration)));
 
             services.AddScoped<IBatteriesProjectDbContext>( provider => provider.GetService<BatteriesProjectDbContext>());
             services.AddScoped<ITokenService, TokenService>();
@@ -24,26 +23,18 @@ namespace WebApi
             return services;
         }
 
-        // private static string GetConnectionString(IConfiguration configuration)
-        // {
-        //     var connection = string.Empty;
-        //     var connectionString = configuration.GetConnectionString("BatteriesConnection");
-        //     var databaseUrl = Environment.GetEnvironmentVariable("DB_CONNECTION");
-        //     var databaseUri = Environment.GetEnvironmentVariable("DATABASE_URL");
-        //     
-        //     // return string.IsNullOrEmpty(connectionString) 
-        //     //     ? databaseUrl 
-        //     //     : (string.IsNullOrEmpty(databaseUri)
-        //     //         ? databaseUrl : BuildConnectionStringFromUrl(databaseUri));
-        //     
-        //     
-        //
-        //     return connection;
-        // }
-        
-        private static string BuildConnectionStringFromUrl(string databaseUriParam)
+        private static string GetConnectionString(IConfiguration configuration)
         {
-            var databaseUri = new Uri(databaseUriParam);
+            var connectionString = configuration.GetConnectionString("BatteriesConnection");
+            var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
+            return string.IsNullOrEmpty(databaseUrl) 
+                ? connectionString 
+                : BuildConnectionStringFromUrl(databaseUrl);
+        }
+        
+        private static string BuildConnectionStringFromUrl(string databaseUrl)
+        {
+            var databaseUri = new Uri(databaseUrl);
             var userInfo = databaseUri.UserInfo.Split(":");
             var builder = new NpgsqlConnectionStringBuilder()
             {
