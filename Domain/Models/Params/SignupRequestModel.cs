@@ -4,7 +4,6 @@ namespace Domain.Models.Params
 {
     public record SignupRequestModel
     (
-        [Required]
         string Nick,
         [Required]
         [EmailAddress]
