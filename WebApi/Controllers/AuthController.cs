@@ -71,7 +71,7 @@ namespace WebApi.Controllers
 
             await _refreshTokenService.SaveRefreshTokenAsync(dbUser.Email, refresh_token, cancellationToken);
 
-            var resultObj = new SigninResponseModel(dbUser.Nick, access_token, refresh_token);
+            var resultObj = new SigninResponseModel(dbUser.Id, access_token, refresh_token);
 
             return Ok(resultObj);
         }
@@ -166,13 +166,13 @@ namespace WebApi.Controllers
                 if (dbUser == null)
                     return NotFound();
 
-                return Ok(new SigninResponseModel(dbUser.Nick, newAccessToken, newRefreshToken));
+                return Ok(new RefreshResponseModel(dbUser.Nick, newAccessToken, newRefreshToken));
 
             }
 
             var _newAccessToken = _tokenService.GenerateToken(null, principal);
 
-            var response = new SigninResponseModel(dbUser.Nick, _newAccessToken, Guid.Parse(savedRefreshToken));
+            var response = new RefreshResponseModel(dbUser.Nick, _newAccessToken, Guid.Parse(savedRefreshToken));
             return Ok(response);
         }
 

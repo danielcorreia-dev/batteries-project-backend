@@ -2,9 +2,9 @@
 
 namespace Domain.Models.Results
 {
-    public record SigninResponseModel
+    public record RefreshResponseModel
     (
-        int Id,
+        string Nick,
         string AccessToken,
         Guid RefreshToken
     );
