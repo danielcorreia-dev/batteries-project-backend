@@ -215,7 +215,7 @@ namespace WebApi.Controllers
 
             if (string.IsNullOrEmpty(userChangePasswordModel.NewPassword))
             {
-                return BadRequest("NewPassword field cannot be is empty. Please, provide a new valid password");
+                return BadRequest("NewPassword field cannot be empty. Please, provide a new valid password");
             }
 
             if (!ValidatePassword(userChangePasswordModel.NewPassword))
