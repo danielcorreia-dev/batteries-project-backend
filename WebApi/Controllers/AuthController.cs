@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -76,6 +77,12 @@ namespace WebApi.Controllers
             return Ok(resultObj);
         }
 
+        /// <summary>
+        /// Cadastrar usuário
+        /// </summary>
+        /// <param name="_signupRequestModel">Um objeto advindo do front contendo um Nick, Email e Password</param>
+        /// <param name="cancellationToken">Um token para o caso do solicitante cancelar a requisição</param>
+        /// <returns></returns>
         //POST: auth/sign-up
         [HttpPost]
         [Route("sign-up")]
@@ -132,7 +139,13 @@ namespace WebApi.Controllers
             return isValid;
         }
 
-
+        /// <summary>
+        /// Gerar um novo AccessToken, por padrão, e gerar um novo RefreshToken se estiver expirado.
+        /// </summary>
+        /// <param name="refreshModel">O objeto advindo do front contendo o AccessToken(expirado) e RefreshToken</param>
+        /// <param name="cancellationToken">Um token para o caso do solicitante cancelar a requisição</param>
+        /// <returns></returns>
+        /// <exception cref="SecurityTokenException"></exception>
         //POST: auth/refresh
         [HttpPost]
         [Route("refresh")]
@@ -174,6 +187,51 @@ namespace WebApi.Controllers
 
             var response = new RefreshResponseModel(dbUser.Nick, _newAccessToken, Guid.Parse(savedRefreshToken));
             return Ok(response);
+        }
+        
+        /// <summary>
+        /// Mudar senha do usuário
+        /// </summary>
+        /// <param name="userChangePasswordModel"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        //PUT: auth/change-password
+        [HttpPut("change-password")]
+        public async Task<IActionResult> UpdateAsync([FromBody] UserChangePasswordModel userChangePasswordModel, CancellationToken cancellationToken)
+        {
+            if (!await _dbContext.Users
+                    .AnyAsync(u => u.Email == userChangePasswordModel.Email, cancellationToken))
+            {
+                return NotFound("User not exists, thus it is not possible change the password !");
+            }
+
+            var _dbUser = await _dbContext.Users
+                    .SingleOrDefaultAsync(u => u.Email == userChangePasswordModel.Email, cancellationToken);
+
+            if (!_dbUser.VerifyPassword(userChangePasswordModel.Password) )
+            {
+                return BadRequest("Password invalid. Please, enter correct password.");
+            }
+
+            if (string.IsNullOrEmpty(userChangePasswordModel.NewPassword))
+            {
+                return BadRequest("NewPassword field cannot be is empty. Please, provide a new valid password");
+            }
+
+            if (!ValidatePassword(userChangePasswordModel.NewPassword))
+            {
+                return BadRequest(@"Password is invalid. Password must contain 8 characters and at least: 
+                    - 1 special character,
+                    - 1 numeric character,
+                    - 1 uppercase character,
+                    - 1 lowercase character ");
+            }
+
+            _dbUser.Password = userChangePasswordModel.NewPassword;
+            await _dbContext.SaveChangesAsync(cancellationToken);
+
+            return Ok();
+
         }
 
     }
