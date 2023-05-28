@@ -105,7 +105,7 @@ namespace WebApi.Controllers
                 .SingleOrDefaultAsync(c => c.Id == id, cancellationToken);
             
             _dbContext.Companies.Remove(dbCompany);
-            _dbContext.SaveChangesAsync(cancellationToken);
+            await _dbContext.SaveChangesAsync(cancellationToken);
 
             return NoContent();
         }
@@ -142,7 +142,7 @@ namespace WebApi.Controllers
                     companyBenefit.Disabled = false;
                 }
                 
-            _dbContext.SaveChangesAsync(cancellationToken);
+            await _dbContext.SaveChangesAsync(cancellationToken);
 
             return Ok();
         }

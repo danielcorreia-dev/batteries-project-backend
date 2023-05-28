@@ -108,7 +108,7 @@ namespace WebApi.Controllers
                     .SingleOrDefaultAsync(u => u.Id == id,cancellationToken);
 
             _dbContext.Remove(dbUser);
-            _dbContext.SaveChangesAsync(cancellationToken);
+            await _dbContext.SaveChangesAsync(cancellationToken);
 
             return NoContent();
         }
