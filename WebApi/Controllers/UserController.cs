@@ -156,5 +156,39 @@ namespace WebApi.Controllers
             return Ok(dbCompany);
 
         }
+        
+        /// <summary>
+        /// Retornar todas as empresas que o usuário recebeu pontos
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        //GET: user/{id}/companies/with-points
+        [HttpGet("{id}/companies/with-points")]
+        public async Task<IActionResult> GetUserCompaniesWithPointsAsync(int id, CancellationToken cancellationToken)
+        {
+            if (!await _dbContext.Users
+                    .AnyAsync(u => u.Id == id, cancellationToken))
+            {
+                return NotFound("Unable to find User");
+            } 
+            
+            var userCompaniesWithPoints = await _dbContext.Users
+                .AsNoTracking()
+                .Where(u => u.Id == id)
+                .SelectMany(u => u.Companies)
+                .Where(ucs => ucs.Score > 0)
+                .Select(uc => new
+                {
+                    Scores = uc.Score,
+                    Company = uc.Company,
+                    Benefits = uc.Company.Benefits
+                })
+                .ToListAsync(cancellationToken);
+
+            return userCompaniesWithPoints.Count > 0 ? 
+                Ok(userCompaniesWithPoints) : 
+                NotFound("User has no companies with points");
+        }
     }
 }
