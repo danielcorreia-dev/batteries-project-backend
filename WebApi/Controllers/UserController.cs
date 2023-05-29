@@ -57,9 +57,9 @@ namespace WebApi.Controllers
         }
         
         /// <summary>
-        /// Listar somente as empresas que o usuário recebeu pontos
+        /// Listar somente as empresas do usuário
         /// </summary>
-        /// <param name="userId">O id, do usuário, que terá as suas empresas sendo listadas na condição delas terem recebido pontos</param>
+        /// <param name="userId">O id, do usuário, que terá as suas empresas sendo listadas</param>
         /// <param name="cancellationToken">Um token para o caso do solicitante cancelar a requisição</param>
         /// <returns>Uma lista de empresas que o usuário recebeu pontos</returns>
         //GET: user/{id}/company
