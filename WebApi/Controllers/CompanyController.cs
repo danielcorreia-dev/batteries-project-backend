@@ -23,6 +23,30 @@ namespace WebApi.Controllers
         {
             _dbContext = dbContext;
         }
+ 
+        // Get all companies and query
+        [HttpGet]
+        public async Task<IActionResult> GetAllCompaniesAsync(string q, CancellationToken cancellationToken)
+        {
+            var query = _dbContext.Companies
+                .AsNoTracking()
+                .Select(c => new
+                {
+                    Id = c.Id,
+                    Title = c.Title,
+                    Address = c.Address
+                })
+                .AsQueryable();
+
+            if (!string.IsNullOrEmpty(q))
+            {
+                query = query.Where(c => c.Title.ToLower().Contains(q.ToLower()) || c.Address.ToLower().Contains(q.ToLower()));
+            }
+
+            var companies = await query.ToListAsync(cancellationToken);
+
+            return Ok(companies);
+        }
 
         /// <summary>
         /// Listar os dados de perfil da empresa

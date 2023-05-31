@@ -32,6 +32,33 @@ namespace WebApi.Controllers
         /// }
         /// </returns>
 
+        //GET: user
+        [AllowAnonymous]
+        [HttpGet]
+        public async Task<IActionResult> GetAllUsers(string nick, CancellationToken cancellationToken)
+        {
+            var query = _dbContext.Users
+                .AsNoTracking()
+                .Select(u => new
+                {
+                    Email = u.Email,
+                    Nick = u.Nick,
+                    TotalScore = u.Companies.Sum(uc => uc.Score)
+                })
+                .AsQueryable();
+
+            if (!string.IsNullOrEmpty(nick))
+            {
+                query = query.Where(u => u.Nick.ToLower().Contains(nick.toLower()));
+            }
+
+            var users = await query.ToListAsync(cancellationToken);
+
+            return Ok(users);
+      }
+
+
+
         //GET: user/{id}
         [AllowAnonymous]
         [HttpGet("{id}")]
