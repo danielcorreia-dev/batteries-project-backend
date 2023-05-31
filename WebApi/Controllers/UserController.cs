@@ -32,6 +32,24 @@ namespace WebApi.Controllers
         /// }
         /// </returns>
 
+        //GET: user
+        [AllowAnonymous]
+        [HttpGet]
+        public async Task<IActionResult> GetAllUsers(CancellationToken cancellationToken)
+        {
+            var users = await _dbContext.Users
+                .AsNoTracking()
+                .Select(u => new
+                {
+                    Email = u.Email,
+                    Nick = u.Nick,
+                    TotalScore = u.Companies.Sum(uc => uc.Score)
+                })
+                .ToListAsync(cancellationToken);
+
+          return Ok(users);
+
+
         //GET: user/{id}
         [AllowAnonymous]
         [HttpGet("{id}")]
