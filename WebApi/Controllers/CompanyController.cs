@@ -23,11 +23,12 @@ namespace WebApi.Controllers
         {
             _dbContext = dbContext;
         }
-        
+ 
+        // Get all companies and query
         [HttpGet]
-        public async Task<IActionResult> GetAllCompaniesAsync(CancellationToken cancellationToken)
+        public async Task<IActionResult> GetAllCompaniesAsync(string q, CancellationToken cancellationToken)
         {
-            var companies = await _dbContext.Companies
+            var query = _dbContext.Companies
                 .AsNoTracking()
                 .Select(c => new
                 {
@@ -35,7 +36,14 @@ namespace WebApi.Controllers
                     Title = c.Title,
                     Address = c.Address
                 })
-                .ToListAsync(cancellationToken);
+                .AsQueryable();
+
+            if (!string.IsNullOrEmpty(q))
+            {
+                query = query.Where(c => c.Title.ToLower().Contains(q.ToLower()) || c.Address.ToLower().Contains(q.ToLower()));
+            }
+
+            var companies = await query.ToListAsync(cancellationToken);
 
             return Ok(companies);
         }

@@ -35,9 +35,9 @@ namespace WebApi.Controllers
         //GET: user
         [AllowAnonymous]
         [HttpGet]
-        public async Task<IActionResult> GetAllUsers(CancellationToken cancellationToken)
+        public async Task<IActionResult> GetAllUsers(string nick, CancellationToken cancellationToken)
         {
-            var users = await _dbContext.Users
+            var query = _dbContext.Users
                 .AsNoTracking()
                 .Select(u => new
                 {
@@ -45,9 +45,18 @@ namespace WebApi.Controllers
                     Nick = u.Nick,
                     TotalScore = u.Companies.Sum(uc => uc.Score)
                 })
-                .ToListAsync(cancellationToken);
+                .AsQueryable();
 
-          return Ok(users);
+            if (!string.IsNullOrEmpty(nick))
+            {
+                query = query.Where(u => u.Nick.ToLower().Contains(nick.toLower()));
+            }
+
+            var users = await query.ToListAsync(cancellationToken);
+
+            return Ok(users);
+      }
+
 
 
         //GET: user/{id}
