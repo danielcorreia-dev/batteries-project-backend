@@ -210,24 +210,25 @@ namespace WebApi.Controllers
             }
             
             if (!await _dbContext.Users
-                    .AnyAsync(u => u.Id == userCompanyScoreModel.userId, cancellationToken))
+                    .AnyAsync(u => u.Id == userCompanyScoreModel.UserId, cancellationToken))
             {
                 return NotFound("Unable to find user");
             }
 
             if (await _dbContext.UserCompanyScores
                     .AnyAsync(ucs =>
-                        ucs.CompanyId == id && ucs.UserId == userCompanyScoreModel.userId, cancellationToken))
+                        ucs.CompanyId == id && ucs.UserId == userCompanyScoreModel.UserId, cancellationToken))
             {
                 return BadRequest($"CompanyId and UserId must be an unique value. " +
-                                  $"The record with UserId = {userCompanyScoreModel.userId} and CompanyId = {userCompanyScoreModel.CompanyId} already exists");
+                                  $"The record with UserId = {userCompanyScoreModel.UserId} and CompanyId = {userCompanyScoreModel.CompanyId} already exists");
             }
             
             var newUsc = new UserCompanyScore()
             {
-                Score = userCompanyScoreModel.Score,
+                Score = userCompanyScoreModel.Scores,
                 CompanyId = userCompanyScoreModel.CompanyId,
-                UserId = userCompanyScoreModel.userId
+                UserId = userCompanyScoreModel.UserId,
+                Owner = userCompanyScoreModel.Owner
             };
 
             await _dbContext.UserCompanyScores.AddAsync(newUsc, cancellationToken);
