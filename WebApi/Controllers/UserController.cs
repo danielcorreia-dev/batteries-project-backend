@@ -87,6 +87,47 @@ namespace WebApi.Controllers
         }
         
         /// <summary>
+        /// Listar os usuários pelo nick e email, caso nao seja passado nada como parametro, retorna todos os usuários
+        /// </summary>
+        /// <param name="cancellationToken">Usado para cancelar a requisição</param>
+        /// <returns>Os usuarios filtradas pelo seu Nick ou Email, caso nao seja passado nada como parametro de filtro, retorna todos os usuários </returns>
+        //GET: user/by-nick-or-email 
+        [HttpGet("by-nick-or-email")]
+        public async Task<IActionResult> GetUsersByNickOrEmailAsync(CancellationToken cancellationToken)
+        {
+
+            if(!await _dbContext.Users.AnyAsync(cancellationToken))
+            {
+                return NotFound("Unable to find Users");
+            }
+
+            HttpContext.Request
+                .Query
+                .TryGetValue("Nick", out var nick);
+            
+            HttpContext.Request
+                .Query
+                .TryGetValue("Email", out var email);
+            
+            if (string.IsNullOrEmpty(nick) && string.IsNullOrEmpty(email))
+            {
+                return Ok(await _dbContext.Users
+                    .AsNoTracking()
+                    .ToListAsync(cancellationToken));
+            }
+
+            var dbUsers = await _dbContext.Users
+                .AsNoTracking()
+                .Where(u =>
+                    (string.IsNullOrEmpty(nick) || u.Nick.ToLower().Contains(nick.ToString().ToLower())) &&
+                    (string.IsNullOrEmpty(email) || u.Email.ToLower().Contains(email.ToString().ToLower()))
+                )
+                .ToListAsync(cancellationToken);
+            
+            return Ok(dbUsers);
+        }
+        
+        /// <summary>
         /// Listar todos os usuários
         /// </summary>
         /// <param name="cancellationToken"></param>

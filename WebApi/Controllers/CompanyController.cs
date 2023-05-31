@@ -49,7 +49,47 @@ namespace WebApi.Controllers
 
             return Ok(companies);
         }
+
+
+       /// <summary>
+       /// Filtrar as empresas pelo título, caso seja passado nenhum filtro, retorna todas os companies
+       /// </summary>
+       /// <param name="cancellationToken">Usado para cancelar a requisição</param>
+       /// <returns>As empresas filtradas pelo seu Title, caso nao seja passado nada como parametro de filtro, retorna todos os empresas</returns>
+       //GET: company/by-title
+       [HttpGet("by-title")]
+        public async Task<IActionResult> GetCompaniesByTitleAsync(CancellationToken cancellationToken)
+        {
+            if(!await _dbContext.Companies.AnyAsync(cancellationToken))
+            {
+                return NotFound("Unable to find Companies");
+            }
             
+            HttpContext.Request
+                .Query
+                .TryGetValue("Title", out var title);
+            
+            if (string.IsNullOrEmpty(title))
+            {
+                return Ok(await _dbContext.Companies
+                    .AsNoTracking()
+                    .ToListAsync(cancellationToken));
+            }
+            
+            var dbCompanies = await _dbContext.Companies
+                .AsNoTracking()
+                .Where(c => c.Title.ToLower().Contains(title.ToString().ToLower()))
+                .Select(c => new
+                {
+                    Id = c.Id,
+                    Title = c.Title,
+                    Address = c.Address
+                })
+                .ToListAsync(cancellationToken);
+
+            return Ok(dbCompanies);
+        }
+        
             
             
         /// <summary>
