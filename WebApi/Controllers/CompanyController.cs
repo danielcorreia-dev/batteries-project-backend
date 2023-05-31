@@ -25,6 +25,34 @@ namespace WebApi.Controllers
         }
 
         /// <summary>
+        /// Listar todas as empresas
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        [HttpGet]
+        public async Task<IActionResult> GetAllCompaniesAsync(CancellationToken cancellationToken)
+        {
+            if (!await _dbContext.Companies.AnyAsync(cancellationToken))
+            {
+                return NotFound("Unable to find companies");
+            };
+            
+            var companies = await _dbContext.Companies
+                .AsNoTracking()
+                .Select(c => new
+                {
+                    Id = c.Id,
+                    Title = c.Title,
+                    Address = c.Address
+                })
+                .ToListAsync(cancellationToken);
+
+            return Ok(companies);
+        }
+            
+            
+            
+        /// <summary>
         /// Listar os dados de perfil da empresa
         /// </summary>
         /// <param name="id">O id da empresa</param>

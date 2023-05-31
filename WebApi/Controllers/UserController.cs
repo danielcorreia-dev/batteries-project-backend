@@ -31,7 +31,6 @@ namespace WebApi.Controllers
         /// "total_score": "1000"
         /// }
         /// </returns>
-
         //GET: user/{id}
         [AllowAnonymous]
         [HttpGet("{id}")]
@@ -85,6 +84,26 @@ namespace WebApi.Controllers
                 .ToListAsync(cancellationToken);
 
             return Ok(userCompanies);
+        }
+        
+        /// <summary>
+        /// Listar todos os usuários
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        [HttpGet]
+        public async Task<IActionResult> GetAllUsersAsync(CancellationToken cancellationToken)
+        {
+            if(!await _dbContext.Users.AnyAsync(cancellationToken))
+            {
+                return NotFound("Unable to find Users");
+            }
+            
+            var dbUsers = await _dbContext.Users
+                .AsNoTracking()
+                .ToListAsync(cancellationToken);
+
+            return Ok(dbUsers);
         }
         
         /// <summary>
