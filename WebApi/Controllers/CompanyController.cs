@@ -23,6 +23,22 @@ namespace WebApi.Controllers
         {
             _dbContext = dbContext;
         }
+        
+        [HttpGet]
+        public async Task<IActionResult> GetAllCompaniesAsync(CancellationToken cancellationToken)
+        {
+            var companies = await _dbContext.Companies
+                .AsNoTracking()
+                .Select(c => new
+                {
+                    Id = c.Id,
+                    Title = c.Title,
+                    Address = c.Address
+                })
+                .ToListAsync(cancellationToken);
+
+            return Ok(companies);
+        }
 
         /// <summary>
         /// Listar os dados de perfil da empresa
