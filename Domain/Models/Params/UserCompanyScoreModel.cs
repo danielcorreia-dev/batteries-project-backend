@@ -1,5 +1,15 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Domain.Models.Params
 {
     public record UserCompanyScoreModel
-        (int CompanyId, int userId, int Score);
+        (
+            [Required]
+            int CompanyId,
+            [Required]
+            int UserId,
+            [Required]
+            int Scores,
+            bool Owner
+        );
 }
