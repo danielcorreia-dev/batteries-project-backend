@@ -7,6 +7,7 @@ using Infrastructure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+
 namespace WebApi.Controllers
 {
     [ApiController]
@@ -54,38 +55,7 @@ namespace WebApi.Controllers
 
             return Ok(dbUser);
         }
-        
-        /// <summary>
-        /// Listar somente as empresas do usuário
-        /// </summary>
-        /// <param name="userId">O id, do usuário, que terá as suas empresas sendo listadas</param>
-        /// <param name="cancellationToken">Um token para o caso do solicitante cancelar a requisição</param>
-        /// <returns>Uma lista de empresas que o usuário recebeu pontos</returns>
-        //GET: user/{id}/company
-        [HttpGet("{id}/companies/")]
-        public async Task<IActionResult> GetCompaniesByUserIdAsync(int userId, CancellationToken cancellationToken)
-        {
 
-            if (!await _dbContext.Users
-                    .AnyAsync(u => u.Id == userId, cancellationToken))
-            {
-                return NotFound("Unable to find User");
-            } 
-            
-            var userCompanies = await _dbContext.Users
-                .AsNoTracking()
-                .SelectMany(u => u.Companies)
-                .Select(uc => new
-                {
-                    Scores = uc.Score,
-                    Company = uc.Company,
-                    Benefits = uc.Company.Benefits
-                })
-                .ToListAsync(cancellationToken);
-
-            return Ok(userCompanies);
-        }
-        
         /// <summary>
         /// Listar os usuários pelo nick e email, caso nao seja passado nada como parametro, retorna todos os usuários
         /// </summary>
@@ -96,7 +66,7 @@ namespace WebApi.Controllers
         public async Task<IActionResult> GetUsersByNickOrEmailAsync(CancellationToken cancellationToken)
         {
 
-            if(!await _dbContext.Users.AnyAsync(cancellationToken))
+            if (!await _dbContext.Users.AnyAsync(cancellationToken))
             {
                 return NotFound("Unable to find Users");
             }
@@ -104,11 +74,11 @@ namespace WebApi.Controllers
             HttpContext.Request
                 .Query
                 .TryGetValue("Nick", out var nick);
-            
+
             HttpContext.Request
                 .Query
                 .TryGetValue("Email", out var email);
-            
+
             if (string.IsNullOrEmpty(nick) && string.IsNullOrEmpty(email))
             {
                 return Ok(await _dbContext.Users
@@ -123,10 +93,10 @@ namespace WebApi.Controllers
                     (string.IsNullOrEmpty(email) || u.Email.ToLower().Contains(email.ToString().ToLower()))
                 )
                 .ToListAsync(cancellationToken);
-            
+
             return Ok(dbUsers);
         }
-        
+
         /// <summary>
         /// Listar todos os usuários
         /// </summary>
@@ -135,18 +105,18 @@ namespace WebApi.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllUsersAsync(CancellationToken cancellationToken)
         {
-            if(!await _dbContext.Users.AnyAsync(cancellationToken))
+            if (!await _dbContext.Users.AnyAsync(cancellationToken))
             {
                 return NotFound("Unable to find Users");
             }
-            
+
             var dbUsers = await _dbContext.Users
                 .AsNoTracking()
                 .ToListAsync(cancellationToken);
 
             return Ok(dbUsers);
         }
-        
+
         /// <summary>
         /// Deletar usuário pelo Id
         /// </summary>
@@ -157,7 +127,7 @@ namespace WebApi.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAsync(int id, CancellationToken cancellationToken)
         {
-            
+
             if (!await _dbContext.Users
                     .AnyAsync(u => u.Id == id, cancellationToken))
             {
@@ -165,14 +135,14 @@ namespace WebApi.Controllers
             }
 
             var dbUser = await _dbContext.Users
-                    .SingleOrDefaultAsync(u => u.Id == id,cancellationToken);
+                .SingleOrDefaultAsync(u => u.Id == id, cancellationToken);
 
             _dbContext.Remove(dbUser);
             await _dbContext.SaveChangesAsync(cancellationToken);
 
             return NoContent();
         }
-        
+
         /// <summary>
         /// Logar como empresa
         /// </summary>
@@ -182,14 +152,15 @@ namespace WebApi.Controllers
         /// <returns>Status Code 200 {"Id": {id}, "Title":"someTitle", "Address":"someAddress"}</returns>
         //GET: user/{id}/company/{id}
         [HttpGet("{userId}/company/{companyId}")]
-        public async Task<IActionResult> GetCompanyFromUserByIdAsync(int userId, int companyId, CancellationToken cancellationToken)
+        public async Task<IActionResult> GetCompanyFromUserByIdAsync(int userId, int companyId,
+            CancellationToken cancellationToken)
         {
-            
+
             if (!await _dbContext.Users.AnyAsync(u => u.Id == userId, cancellationToken))
             {
                 return NotFound("Unable to find user, cannot to log in");
             }
-            
+
             if (!await _dbContext.Users
                     .AsNoTracking()
                     .Where(u => u.Id == userId)
@@ -198,8 +169,8 @@ namespace WebApi.Controllers
             {
                 return NotFound("Unable to find company, cannot to log in");
             }
-            
-            
+
+
             var dbCompany = await _dbContext.Users
                 .Where(u => u.Id == userId)
                 .SelectMany(u => u.Companies)
@@ -216,7 +187,7 @@ namespace WebApi.Controllers
             return Ok(dbCompany);
 
         }
-        
+
         /// <summary>
         /// Retornar todas as empresas que o usuário recebeu pontos
         /// </summary>
@@ -231,8 +202,8 @@ namespace WebApi.Controllers
                     .AnyAsync(u => u.Id == id, cancellationToken))
             {
                 return NotFound("Unable to find User");
-            } 
-            
+            }
+
             var userCompaniesWithPoints = await _dbContext.Users
                 .AsNoTracking()
                 .Where(u => u.Id == id)
@@ -246,9 +217,62 @@ namespace WebApi.Controllers
                 })
                 .ToListAsync(cancellationToken);
 
-            return userCompaniesWithPoints.Count > 0 ? 
-                Ok(userCompaniesWithPoints) : 
-                NotFound("User has no companies with points");
+            return userCompaniesWithPoints.Count > 0
+                ? Ok(userCompaniesWithPoints)
+                : NotFound("User has no companies with points");
+        }
+
+        /// <summary>
+        /// Recuperar empresas que o usuário é dono ou tem participação via querystring
+        /// </summary>
+        /// <param name="id">O id do usuario</param>
+        /// <param name="owner">Um booleano indicando se é para filtrar pelas empresas do usuario ou empresas que o usuario tem participacao</param>
+        /// <param name="cancellationToken">Um token para o caso do solicitante cancelar a requisição</param>
+        /// <returns>Uma lista de empresas que o usuario é dono ou tem participação</returns>
+        ///GET: user/{id}/companies?Owner={owner}
+        [AllowAnonymous]
+        [HttpGet("{id}/companies")]
+        public async Task<IActionResult> GetCompaniesAsync(int id, CancellationToken cancellationToken)
+        {
+            if (!await _dbContext.Users
+                    .AnyAsync(u => u.Id == id, cancellationToken))
+            {
+                return NotFound("Unable to find User");
+            }
+
+            var isExistsOwner = HttpContext.Request
+                .Query
+                .TryGetValue("Owner", out var owner);
+
+            if (!isExistsOwner)
+            {
+                return BadRequest("Owner is required");
+            }
+
+            var userCompanies = await _dbContext.Users
+                .AsNoTracking()
+                .Where(u => u.Id == id)
+                .SelectMany(u => u.Companies)
+                .Where(ucs => ucs.Owner == bool.Parse(owner))
+                .Select(uc => new
+                {
+                    Scores = uc.Score,
+                    Company = uc.Company,
+                    Benefits = uc.Company.Benefits
+                })
+                .ToListAsync(cancellationToken);
+
+            if (userCompanies.Count == 0 && bool.Parse(owner) == false)
+            {
+                return NotFound("User has no participation in companies");
+            }
+            if (userCompanies.Count == 0 && bool.Parse(owner))
+            {
+                return NotFound("User has no companies");
+            }
+
+            return Ok(userCompanies);
+
         }
     }
 }
