@@ -179,44 +179,44 @@ namespace WebApi.Controllers
         }
         
         /// <summary>
-        /// Desabilita o beneficio de uma empresa
+        /// Desabilitar todos os beneficios de uma empresa
         /// </summary>
         /// <param name="id">O id da empresa</param>
         /// <param name="cancellationToken">Usado para cancelar a requisição</param>
         /// <returns>Ok()</returns>
+        //DELETE: company/{id}/benefits
         [HttpDelete("{id}/benefits")]
         public async Task<IActionResult> DeleteByIdAsync(int id, CancellationToken cancellationToken)
         {
-
             var benefits = await _dbContext.Companies
                         .Where(c => c.Id == id)
                         .Include(c => c.Benefits)
                         .SelectMany(cb => cb.Benefits)
                         .ToListAsync(cancellationToken);
-
+            
             if (benefits.Count == 0)
             {
                 return NotFound("This company has no benefits");
             }
-
+        
             var companyBenefits = await _dbContext.Companies
                 .Where(c => c.Id == id)
                 .Include(c => c.Benefits)
                 .SelectMany(c => c.Benefits)
                 .ToListAsync(cancellationToken);
-
+        
                 foreach (var companyBenefit in companyBenefits)
                 {
                     companyBenefit.Disabled = false;
                 }
                 
             await _dbContext.SaveChangesAsync(cancellationToken);
-
+        
             return Ok();
         }
 
         /// <summary>
-        /// Atualizar as configurações da empresa
+        /// Atualizar beneficio da empresa
         /// </summary>
         /// <param name="companyId">O id da empresa</param>
         /// <param name="benefitId">O id do beneficio</param>
@@ -304,6 +304,45 @@ namespace WebApi.Controllers
             await _dbContext.SaveChangesAsync(cancellationToken);
 
             return Created(nameof(GetByIdAsync),newUsc);
+        }
+        
+        /// <summary>
+        /// Adicionar um novo beneficio a uma empresa
+        /// </summary>
+        /// <param name="id">O id da empresa</param>
+        /// <param name="companyBenefitsModel">O novo beneficio a ser adicionado </param>
+        /// <param name="cancellationToken">Usado para cancelar a requisição</param>
+        /// <returns>O endpoint de onde obter o novo beneficio criado e o beneficio criado</returns>
+        //POST: company/{id}/benefits
+        [AllowAnonymous]
+        [HttpPost("{id}/benefits")]
+        public async Task<IActionResult> PostCompanyBenefit(int id,CompanyBenefitsModel companyBenefitsModel, CancellationToken cancellationToken)
+        {
+            if (!await _dbContext.Companies
+                    .AnyAsync(c => c.Id == id, cancellationToken))
+            {
+                return NotFound("Unable to find company");
+            }
+
+            var dbCompany = await _dbContext.Companies
+                .Where(c => c.Id == id)
+                .Include(c => c.Benefits)
+                .SingleOrDefaultAsync(cancellationToken);
+
+            var newCompanyBenefit = new CompanyBenefit()
+            {
+                Benefit = companyBenefitsModel.Benefit,
+                Description = companyBenefitsModel.Description,
+                ScoreNeeded = companyBenefitsModel.ScoreNeeded,
+                Disabled = true,
+                CreatedAt = DateTimeOffset.Now
+            };
+
+            dbCompany.Benefits.Add(newCompanyBenefit);
+
+            await _dbContext.SaveChangesAsync(cancellationToken);
+
+            return Created(nameof(GetByIdAsync), newCompanyBenefit);
         }
         
         /// <summary>
