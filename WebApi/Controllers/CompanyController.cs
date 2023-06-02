@@ -314,7 +314,6 @@ namespace WebApi.Controllers
         /// <param name="cancellationToken">Usado para cancelar a requisição</param>
         /// <returns>O endpoint de onde obter o novo beneficio criado e o beneficio criado</returns>
         //POST: company/{id}/benefits
-        [AllowAnonymous]
         [HttpPost("{id}/benefits")]
         public async Task<IActionResult> PostCompanyBenefit(int id,CompanyBenefitsModel companyBenefitsModel, CancellationToken cancellationToken)
         {
