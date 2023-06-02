@@ -377,5 +377,52 @@ namespace WebApi.Controllers
             return Ok();
 
         }
+        /// <summary>
+        /// Desabilitar ou habilitar o beneficio de uma empresa
+        /// </summary>
+        /// <param name="companyId">O id da empresa que contém o beneficio</param>
+        /// <param name="benefitId">O id do beneficio a ser desabilitado ou habilitado</param>
+        /// <param name="cancellationToken">Usado para cancelar a requisição</param>
+        /// <returns></returns>
+        //PUT: company/{id}/benefits/{id}?Active={active}
+        [HttpPut("{companyId}/benefits/{benefitId}")]
+        public async Task<IActionResult> PutCompanyBenefitByIdAsync(int companyId, int benefitId, CancellationToken cancellationToken)
+        {
+
+            var isExistsActive = Request.Query
+                .TryGetValue("Active", out var active);
+
+            if (!isExistsActive)
+            {
+                return BadRequest("Active query string is required");
+            }
+            
+            if (!await _dbContext.Companies
+                    .AnyAsync(c => c.Id == companyId,cancellationToken))
+            {
+                return NotFound("Unable to find company");
+            }
+
+            if (!await _dbContext.Companies
+                        .Where(c => c.Id == companyId)
+                        .SelectMany(c => c.Benefits)
+                        .AnyAsync(cb => cb.Id == benefitId, cancellationToken))
+            {
+                return NotFound("Unable to find benefit");
+            }
+
+            var companyBenefit = await _dbContext.Companies
+                .Where(c => c.Id == companyId)
+                .Include(c => c.Benefits)
+                .SelectMany(cb => cb.Benefits)
+                .SingleOrDefaultAsync(cb => cb.Id == benefitId, cancellationToken);
+                
+                
+            companyBenefit.Disabled = bool.TryParse(active, out var isActive) && isActive;
+                
+            await _dbContext.SaveChangesAsync(cancellationToken);
+
+            return Ok();
+        }
     }
 }
