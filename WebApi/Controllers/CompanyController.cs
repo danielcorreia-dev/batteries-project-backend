@@ -223,7 +223,7 @@ namespace WebApi.Controllers
         /// <param name="companyBenefit">o objeto companyBenefits contendo os novos beneficios</param>
         /// <param name="cancellationToken">Usado para cancelar a requisição</param>
         /// <returns>Created()</returns>
-        [HttpPut("{companyId}/benefit/{benefitId}")]
+        [HttpPut("{companyId}/benefits/{benefitId}/update")]
         public async Task<IActionResult> PutAsync(int companyId, int benefitId, [FromBody] CompanyBenefitsModel companyBenefit, CancellationToken cancellationToken)
         {
             if (!await _dbContext.Companies
