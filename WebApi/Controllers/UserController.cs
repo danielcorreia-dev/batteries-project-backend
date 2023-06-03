@@ -230,7 +230,6 @@ namespace WebApi.Controllers
         /// <param name="cancellationToken">Um token para o caso do solicitante cancelar a requisição</param>
         /// <returns>Uma lista de empresas que o usuario é dono ou tem participação</returns>
         ///GET: user/{id}/companies?Owner={owner}
-        [AllowAnonymous]
         [HttpGet("{id}/companies")]
         public async Task<IActionResult> GetCompaniesAsync(int id, CancellationToken cancellationToken)
         {
