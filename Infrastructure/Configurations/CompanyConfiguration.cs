@@ -10,10 +10,11 @@ namespace Infrastructure.Configurations
         {
             builder.HasIndex(x => x.Title).IsUnique();
 
-            
             builder.Property(c => c.Title).IsRequired().HasMaxLength(200);
             builder.Property(c => c.Address).IsRequired().HasMaxLength(255);
-
+            builder.Property(c => c.PhoneNumber).IsRequired().HasMaxLength(255);
+            builder.Property(c => c.OpeningHours).IsRequired().HasMaxLength(255);
+            
             builder.HasMany(c => c.Users)
                 .WithOne(ucp => ucp.Company)
                 .HasForeignKey(ucp => ucp.CompanyId)

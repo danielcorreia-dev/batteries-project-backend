@@ -11,6 +11,8 @@ namespace Domain.Entities
         }
         public string Title { get; set; }
         public string Address { get; set; }
+        public string PhoneNumber { get; set; }
+        public string OpeningHours { get; set; }
         public List<UserCompanyScore> Users { get; set; }
         public List<CompanyBenefit> Benefits { get; set; }
         
