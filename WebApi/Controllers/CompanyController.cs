@@ -43,7 +43,9 @@ namespace WebApi.Controllers
                 {
                     Id = c.Id,
                     Title = c.Title,
-                    Address = c.Address
+                    Address = c.Address,
+                    OpeningHours = c.OpeningHours,
+                    PhoneNumber = c.PhoneNumber
                 })
                 .ToListAsync(cancellationToken);
 
@@ -83,7 +85,9 @@ namespace WebApi.Controllers
                 {
                     Id = c.Id,
                     Title = c.Title,
-                    Address = c.Address
+                    Address = c.Address,
+                    OpeningHours = c.OpeningHours,
+                    PhoneNumber = c.PhoneNumber
                 })
                 .ToListAsync(cancellationToken);
 
@@ -115,7 +119,9 @@ namespace WebApi.Controllers
                 {
                     Id = c.Id,
                     Title = c.Title,
-                    Address = c.Address
+                    Address = c.Address,
+                    OpeningHours = c.OpeningHours,
+                    PhoneNumber = c.PhoneNumber
                 })
                 .ToListAsync(cancellationToken);
 
@@ -143,6 +149,8 @@ namespace WebApi.Controllers
                 Title = company.Title,
                 Address = company.Address,
                 CreatedAt = DateTimeOffset.Now,
+                OpeningHours = company.OpeningHours,
+                PhoneNumber = company.PhoneNumber,
                 Benefits = new List<CompanyBenefit>(),
                 Users = new List<UserCompanyScore>()
             }; 
@@ -188,7 +196,7 @@ namespace WebApi.Controllers
         [HttpDelete("{id}/benefits")]
         public async Task<IActionResult> DeleteByIdAsync(int id, CancellationToken cancellationToken)
         {
-            var benefits = await _dbContext.Companies
+            var benefits = await _dbContext.Companies   
                         .Where(c => c.Id == id)
                         .Include(c => c.Benefits)
                         .SelectMany(cb => cb.Benefits)
@@ -371,6 +379,8 @@ namespace WebApi.Controllers
 
             dbCompany.Title = companyModel.Title;
             dbCompany.Address = companyModel.Address;
+            dbCompany.PhoneNumber = companyModel.PhoneNumber;
+            dbCompany.OpeningHours = companyModel.OpeningHours;
 
             await _dbContext.SaveChangesAsync(cancellationToken);
             return Ok();
