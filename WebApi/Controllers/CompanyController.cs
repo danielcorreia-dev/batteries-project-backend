@@ -104,7 +104,7 @@ namespace WebApi.Controllers
         /// <param name="cancellationToken">Usado para cancelar a requisição</param>
         /// <returns>Ok({id, titulo, endereco})</returns>
         [AllowAnonymous]
-        [HttpGet("{id}")]
+        [HttpGet("{id}/profile")]
         public async Task<IActionResult> GetByIdAsync(int id, CancellationToken cancellationToken)
         {
             if (!await _dbContext.Companies
@@ -116,13 +116,16 @@ namespace WebApi.Controllers
             var companyProfileData = await _dbContext.Companies
                 .AsNoTracking()
                 .Where(c => c.Id == id)
-                .Select(c => new
+                .SelectMany(c => c.Benefits)
+                .Select(cb => new
                 {
-                    Id = c.Id,
-                    Title = c.Title,
-                    Address = c.Address,
-                    OpeningHours = c.OpeningHours,
-                    PhoneNumber = c.PhoneNumber
+                    Id = cb.Id,
+                    Title = cb.Company.Title,
+                    Address = cb.Company.Address,
+                    OpenHours = cb.Company.OpeningHours,
+                    PhoneNumber = cb.Company.PhoneNumber,
+                    Benefit = cb.Company.Benefits
+                    
                 })
                 .ToListAsync(cancellationToken);
 
