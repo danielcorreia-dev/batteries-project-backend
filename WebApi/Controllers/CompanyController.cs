@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Domain.Entities;
@@ -137,9 +138,14 @@ namespace WebApi.Controllers
         [HttpPost]
         public async Task<IActionResult> PostAsync([FromBody] CompanyModel company, CancellationToken cancellationToken)
         {
+
+            if (!ValidatePhoneNumber(company.PhoneNumber))
+            {
+                return BadRequest("Invalid phone number");
+            }
             
             if (await _dbContext.Companies
-                    .AnyAsync(c => c.Title == company.Title, cancellationToken))
+                    .AnyAsync(c => c.Title == company.Title || c.PhoneNumber == company.PhoneNumber, cancellationToken))
             {
                 return BadRequest("Company already exists");
             }
@@ -160,6 +166,26 @@ namespace WebApi.Controllers
 
             return Created(nameof(GetByIdAsync), newCompany);
 
+        }
+        
+        [NonAction]
+        private bool ValidatePhoneNumber(string phoneNumber)
+        {
+            
+            /* The format of the phone number must be: 
+           
+                (XX) 9XXXX-XXXX
+            */
+            Regex regExpPhoneNumber = new(@"^(\([0-9]{2})\)[ ]{1}(9[0-9]{4})([0-9]{4})$");
+            
+            var isValid = regExpPhoneNumber.IsMatch(phoneNumber);
+
+            if (!isValid)
+            {
+                return false;
+            }
+            
+            return isValid;
         }
 
         /// <summary>
