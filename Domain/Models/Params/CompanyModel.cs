@@ -1,5 +1,8 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Domain.Models.Params
 {
     public record CompanyModel
-        (string Title, string Address);
+        ( [Required] string Title, [Required] string Address,
+            [Required] string PhoneNumber, [Required] string OpeningHours);
 }
