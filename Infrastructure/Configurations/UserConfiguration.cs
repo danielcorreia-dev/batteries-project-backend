@@ -15,9 +15,8 @@ namespace Infrastructure.Configurations
             builder.Property(u => u.Email).IsRequired().HasMaxLength(200);
             builder.Property(u => u.Password).IsRequired().HasMaxLength(200);
 
-            builder.HasMany(u => u.Companies)
-                .WithOne(ucp => ucp.User)
-                .HasForeignKey(ucp => ucp.UserId)
+            builder.HasOne(u => u.Company)
+                .WithOne(c => c.User)
                 .OnDelete(DeleteBehavior.Cascade);
         }
 

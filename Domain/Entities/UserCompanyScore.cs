@@ -11,6 +11,5 @@ namespace Domain.Entities
         public int CompanyId { get; set; }
         public Company Company { get; set; }
         public int Score { get; set; }
-        public bool Owner { get; set; }
     }
 }
