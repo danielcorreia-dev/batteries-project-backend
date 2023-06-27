@@ -16,7 +16,8 @@ namespace Domain.Entities
 
         public List<UserCompanyScore> Companies { get; set; }
         public string Nick { get; set; }
-        [Email]
+        public Company Company { get; set; }
+        [EmailAddress]
         public string Email { get; set; }
         public Guid RefreshToken { get; set; }
         public DateTime ExpiryTime { get; set; }

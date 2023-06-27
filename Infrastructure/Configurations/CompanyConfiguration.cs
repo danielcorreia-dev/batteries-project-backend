@@ -1,4 +1,5 @@
-﻿using Domain.Entities;
+﻿using System.Linq;
+using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -8,16 +9,15 @@ namespace Infrastructure.Configurations
     {
         public void Configure(EntityTypeBuilder<Company> builder)
         {
-            builder.HasIndex(x => x.Title).IsUnique();
-
+            builder.HasIndex(c => c.Title).IsUnique();
+            
             builder.Property(c => c.Title).IsRequired().HasMaxLength(200);
             builder.Property(c => c.Address).IsRequired().HasMaxLength(255);
             builder.Property(c => c.PhoneNumber).IsRequired().HasMaxLength(255);
             builder.Property(c => c.OpeningHours).IsRequired().HasMaxLength(255);
             
-            builder.HasMany(c => c.Users)
-                .WithOne(ucp => ucp.Company)
-                .HasForeignKey(ucp => ucp.CompanyId)
+            builder.HasOne(c => c.User)
+                .WithOne(u => u.Company)
                 .OnDelete(DeleteBehavior.Cascade);
                 
         }
