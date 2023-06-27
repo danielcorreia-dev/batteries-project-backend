@@ -161,7 +161,8 @@ namespace WebApi.Controllers
                 OpeningHours = company.OpeningHours,
                 PhoneNumber = company.PhoneNumber,
                 Benefits = new List<CompanyBenefit>(),
-                Users = new List<UserCompanyScore>()
+                Users = new List<UserCompanyScore>(),
+                UserId = company.UserId
             }; 
 
             await _dbContext.Companies.AddAsync(newCompany, cancellationToken);
@@ -333,7 +334,6 @@ namespace WebApi.Controllers
                 Score = userCompanyScoreModel.Scores,
                 CompanyId = userCompanyScoreModel.CompanyId,
                 UserId = userCompanyScoreModel.UserId,
-                Owner = userCompanyScoreModel.Owner
             };
 
             await _dbContext.UserCompanyScores.AddAsync(newUsc, cancellationToken);

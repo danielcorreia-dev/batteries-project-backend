@@ -223,15 +223,14 @@ namespace WebApi.Controllers
         }
 
         /// <summary>
-        /// Recuperar empresas que o usuário é dono ou tem participação via querystring
+        /// Recuperar empresa que o usuário é dono
         /// </summary>
         /// <param name="id">O id do usuario</param>
-        /// <param name="owner">Um booleano indicando se é para filtrar pelas empresas do usuario ou empresas que o usuario tem participacao</param>
         /// <param name="cancellationToken">Um token para o caso do solicitante cancelar a requisição</param>
-        /// <returns>Uma lista de empresas que o usuario é dono ou tem participação</returns>
-        ///GET: user/{id}/companies?Owner={owner}
-        [HttpGet("{id}/companies")]
-        public async Task<IActionResult> GetCompaniesAsync(int id, CancellationToken cancellationToken)
+        /// <returns>A empresa que o usuário é dono</returns>
+        ///GET: user/{id}/company
+        [HttpGet("{id}/company")]
+        public async Task<IActionResult> GetCompanyAsync(int id, CancellationToken cancellationToken)
         {
             if (!await _dbContext.Users
                     .AnyAsync(u => u.Id == id, cancellationToken))
@@ -239,38 +238,25 @@ namespace WebApi.Controllers
                 return NotFound("Unable to find User");
             }
 
-            var isExistsOwner = HttpContext.Request
-                .Query
-                .TryGetValue("Owner", out var owner);
-
-            if (!isExistsOwner)
-            {
-                return BadRequest("Owner is required");
-            }
-
-            var userCompanies = await _dbContext.Users
+            var userCompany = await _dbContext.UserCompanyScores
                 .AsNoTracking()
-                .Where(u => u.Id == id)
-                .SelectMany(u => u.Companies)
-                .Where(ucs => ucs.Owner == bool.Parse(owner))
-                .Select(uc => new
+                .Where(ucs => ucs.UserId == id)
+                .Select(ucs => new
                 {
-                    Scores = uc.Score,
-                    Company = uc.Company,
-                    Benefits = uc.Company.Benefits
+                    Title = ucs.Company.Title,
+                    Address = ucs.Company.Address,
+                    OpeningHours = ucs.Company.OpeningHours,
+                    PhoneNumber = ucs.Company.PhoneNumber
                 })
-                .ToListAsync(cancellationToken);
-
-            if (userCompanies.Count == 0 && bool.Parse(owner) == false)
+                .SingleOrDefaultAsync(cancellationToken);
+                
+                
+            if(userCompany == null)
             {
-                return NotFound("User has no participation in companies");
+                return NotFound("User has no company");
             }
-            if (userCompanies.Count == 0 && bool.Parse(owner))
-            {
-                return NotFound("User has no companies");
-            }
-
-            return Ok(userCompanies);
+            
+            return Ok(userCompany);
 
         }
     }
