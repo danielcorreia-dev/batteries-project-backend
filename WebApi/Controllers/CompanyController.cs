@@ -180,7 +180,7 @@ namespace WebApi.Controllers
            
                 (XX) 9XXXX-XXXX
             */
-            Regex regExpPhoneNumber = new(@"^(\([0-9]{2})\)[ ]{1}(9[0-9]{4})([0-9]{4})$");
+            Regex regExpPhoneNumber = new(@"^(\([0-9]{2})\)[ ]{1}(9[0-9]{4})-([0-9]{4})$");
             
             var isValid = regExpPhoneNumber.IsMatch(phoneNumber);
 
