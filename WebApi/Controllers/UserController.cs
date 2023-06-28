@@ -238,7 +238,7 @@ namespace WebApi.Controllers
                 return NotFound("Unable to find User");
             }
 
-            var userCompany = await _dbContext.UserCompanyScores
+            var userCompany = await _dbContext.Companies
                 .AsNoTracking()
                 .Where(ucs => ucs.UserId == id)
                 .Select(ucs => new
