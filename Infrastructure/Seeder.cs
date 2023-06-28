@@ -58,7 +58,7 @@ namespace Infrastructure
                         Title = "Company 01",
                         Address = "Rua Dom Felício Vasconcelos - Capiata",
                         CreatedAt = DateTimeOffset.Now,
-                        UserId = 1,
+                        UserId = context.Users.Where(x => x.Email == "eugenio-lopes@batteries.com").Select(x => x.Id).FirstOrDefault(),
                         OpeningHours = "10 as 18h",
                         PhoneNumber = "(82) 99999-9998"
                     },
@@ -67,7 +67,7 @@ namespace Infrastructure
                         Title = "Company 02",
                         Address = "Ponta Verde",
                         CreatedAt = DateTimeOffset.Now,
-                        UserId = 2,
+                        UserId = context.Users.Where(x => x.Email == "daniel-correia@batteries.com").Select(x => x.Id).FirstOrDefault(),
                         OpeningHours = "10 as 19h",
                         PhoneNumber = "(82) 99999-9997"
                     },
@@ -76,7 +76,7 @@ namespace Infrastructure
                         Title = "Company 03",
                         Address = "Rua Pedro Florentim Bastos - Polém",
                         CreatedAt = DateTimeOffset.Now,
-                        UserId = 3,
+                        UserId = context.Users.Where(x => x.Email == "carlos-gama@batteries.com").Select(x => x.Id).FirstOrDefault(),
                         OpeningHours = "10 as 20h",
                         PhoneNumber = "(82) 99999-9999"
                     },
@@ -94,7 +94,7 @@ namespace Infrastructure
                         Benefit = "Plano de saúde, Vale alimentação, Vale bem-estar, Vale Ifood",
                         Description = "Descrição do benefício 01",
                         Disabled = false,
-                        CompanyId = 1,
+                        CompanyId = context.Companies.Where(x => x.Title == "Company 01").Select(x => x.Id).FirstOrDefault(),
                         CreatedAt = DateTimeOffset.Now,
                         ScoreNeeded = 60,
                     },
@@ -103,7 +103,7 @@ namespace Infrastructure
                         Benefit = "Plano de saúde, Vale alimentação",
                         Description = "Descrição do benefício 02",
                         Disabled = false,
-                        CompanyId = 2,
+                        CompanyId = context.Companies.Where(x => x.Title == "Company 02").Select(x => x.Id).FirstOrDefault(),
                         CreatedAt = DateTimeOffset.Now,
                         ScoreNeeded = 70,
                     },
@@ -112,7 +112,7 @@ namespace Infrastructure
                         Benefit = "Plano de saúde, Vale alimentação, Vale bem-estar",
                         Description = "Descrição do benefício 03",
                         Disabled = false,
-                        CompanyId = 3,
+                        CompanyId = context.Companies.Where(x => x.Title == "Company 03").Select(x => x.Id).FirstOrDefault(),
                         CreatedAt = DateTimeOffset.Now,
                         ScoreNeeded = 50,
                     },
@@ -128,22 +128,22 @@ namespace Infrastructure
                     new()
                     {
                         Score = 100,
-                        CompanyId = 1,
-                        UserId = 1,
+                        CompanyId = context.Companies.Where(x => x.Title == "Company 01").Select(x => x.Id).FirstOrDefault(),
+                        UserId = context.Users.Where(x => x.Email == "eugenio-lopes@batteries.com").Select(x => x.Id).FirstOrDefault(),
             
                     },
                     new()
                     {
                         Score = 80,
-                        CompanyId = 2,
-                        UserId = 2,
+                        CompanyId = context.Companies.Where(x => x.Title == "Company 02").Select(x => x.Id).FirstOrDefault(),
+                        UserId = context.Users.Where(x => x.Email == "daniel-correia@batteries.com").Select(x => x.Id).FirstOrDefault(),
             
                     },
                     new()
                     {
                         Score = 60,
-                        CompanyId = 3,
-                        UserId = 2,
+                        CompanyId = context.Companies.Where(x => x.Title == "Company 03").Select(x => x.Id).FirstOrDefault(),
+                        UserId = context.Users.Where(x => x.Email == "carlos-gama@batteries.com").Select(x => x.Id).FirstOrDefault(),
             
                     },
                 };
