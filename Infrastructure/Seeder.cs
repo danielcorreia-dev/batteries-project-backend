@@ -21,8 +21,7 @@ namespace Infrastructure
                         CreatedAt = DateTimeOffset.Now,
                         Password = "Passwd123456#",
                         ExpiryTime = DateTime.Now.AddDays(30),
-                        RefreshToken = Guid.NewGuid()
-
+                        RefreshToken = Guid.NewGuid(),
                     },
                     new()
                     {
@@ -32,7 +31,7 @@ namespace Infrastructure
                         CreatedAt = DateTime.Now,
                         Password = "Passwd123456#",
                         ExpiryTime = DateTime.Now.AddDays(30),
-                        RefreshToken = Guid.NewGuid()
+                        RefreshToken = Guid.NewGuid(),
                     },
                     new()
                     {
@@ -42,7 +41,7 @@ namespace Infrastructure
                         CreatedAt = DateTimeOffset.Now,
                         Password = "Passwd123456#",
                         ExpiryTime = DateTime.Now.AddDays(30),
-                        RefreshToken = Guid.NewGuid()
+                        RefreshToken = Guid.NewGuid(),
 
                     },
                 };
@@ -59,18 +58,27 @@ namespace Infrastructure
                         Title = "Company 01",
                         Address = "Rua Dom Felício Vasconcelos - Capiata",
                         CreatedAt = DateTimeOffset.Now,
+                        UserId = 1,
+                        OpeningHours = "10 as 18h",
+                        PhoneNumber = "(82) 99999-9998"
                     },
                     new()
                     {
                         Title = "Company 02",
                         Address = "Ponta Verde",
                         CreatedAt = DateTimeOffset.Now,
+                        UserId = 2,
+                        OpeningHours = "10 as 19h",
+                        PhoneNumber = "(82) 99999-9997"
                     },
                     new()
                     {
                         Title = "Company 03",
                         Address = "Rua Pedro Florentim Bastos - Polém",
                         CreatedAt = DateTimeOffset.Now,
+                        UserId = 3,
+                        OpeningHours = "10 as 20h",
+                        PhoneNumber = "(82) 99999-9999"
                     },
                 };
                 context.Companies.AddRange(companies);
