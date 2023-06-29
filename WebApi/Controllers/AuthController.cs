@@ -109,6 +109,7 @@ namespace WebApi.Controllers
                 Email = _signupRequestModel.Email,
                 Nick = _signupRequestModel.Nick,
                 Password = _signupRequestModel.Password,
+                CreatedAt = DateTimeOffset.Now
             };
             await _dbContext.AddAsync(newUser, cancellationToken);
             await _dbContext.SaveChangesAsync(cancellationToken);

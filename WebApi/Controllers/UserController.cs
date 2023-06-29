@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Domain.Entities;
+using Domain.Models.Params;
 using Infrastructure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -238,19 +239,19 @@ namespace WebApi.Controllers
                 return NotFound("Unable to find User");
             }
 
-            var userCompany = await _dbContext.UserCompanyScores
-                .AsNoTracking()
-                .Where(ucs => ucs.UserId == id)
-                .Select(ucs => new
-                {
-                    Title = ucs.Company.Title,
-                    Address = ucs.Company.Address,
-                    OpeningHours = ucs.Company.OpeningHours,
-                    PhoneNumber = ucs.Company.PhoneNumber
-                })
-                .SingleOrDefaultAsync(cancellationToken);
-                
-                
+            var userCompany = await _dbContext.Companies
+                 .AsNoTracking()
+                 .Where(c => c.UserId == id)
+                 .Select(c => new Company 
+                 {
+                     Title = c.Title,
+                     Address = c.Address,
+                     OpeningHours = c.OpeningHours,
+                     PhoneNumber = c.PhoneNumber,
+                     UserId = c.UserId,
+                 })
+                 .SingleOrDefaultAsync(cancellationToken);
+            
             if(userCompany == null)
             {
                 return NotFound("User has no company");
