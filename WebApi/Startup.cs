@@ -13,6 +13,7 @@ using Microsoft.OpenApi.Models;
 using WebApi.Extensions;
 using System.Linq;
 using Microsoft.AspNetCore.Http;
+using WebApi.Middlewares;
 
 namespace WebApi
 {
@@ -66,6 +67,7 @@ namespace WebApi
 
             }
 
+            app.UseMiddleware<ErrorHandlingMiddleware>();
             //app.UseHttpsRedirection();
 
             app.UseRouting();
