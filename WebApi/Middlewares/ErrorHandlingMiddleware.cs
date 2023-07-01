@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using Domain.Entities;
+using Domain.Models;
 using Domain.Models.Results;
 using Infrastructure;
 using Microsoft.AspNetCore.Http;
@@ -49,7 +50,7 @@ namespace WebApi.Middlewares
             await dbContext!.ErrorLogs.AddAsync(errorLog);
             await dbContext.SaveChangesAsync();
             
-            var responseObj = new ErrorLogModel
+            var responseObj = new ProblemDetailsModel()
             {
                 StatusCode = 500,
                 ContentType = "application/json",
