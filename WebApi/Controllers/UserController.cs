@@ -249,6 +249,7 @@ namespace WebApi.Controllers
                      OpeningHours = c.OpeningHours,
                      PhoneNumber = c.PhoneNumber,
                      UserId = c.UserId,
+                     Id = c.Id
                  })
                  .SingleOrDefaultAsync(cancellationToken);
             
