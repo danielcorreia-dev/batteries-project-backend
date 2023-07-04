@@ -116,15 +116,18 @@ namespace WebApi.Controllers
             var companyProfileData = await _dbContext.Companies
                 .AsNoTracking()
                 .Where(c => c.Id == id)
-                .SelectMany(c => c.Benefits)
-                .Select(cb => new
+                .Select(c => new
                 {
-                    Id = cb.Id,
-                    Title = cb.Company.Title,
-                    Address = cb.Company.Address,
-                    OpenHours = cb.Company.OpeningHours,
-                    PhoneNumber = cb.Company.PhoneNumber,
-                    Benefit = cb.Company.Benefits
+                    CompanyId = c.Id,
+                    Title = c.Title,
+                    Address = c.Address,
+                    OpenHours = c.OpeningHours,
+                    PhoneNumber = c.PhoneNumber,
+                    Benefit = c.Benefits.Select(cb => new
+                    {
+                        Id = cb.Id,
+                        benefit = cb.Benefit
+                    })
                     
                 })
                 .ToListAsync(cancellationToken);
