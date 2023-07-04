@@ -126,7 +126,9 @@ namespace WebApi.Controllers
                     Benefit = c.Benefits.Select(cb => new
                     {
                         Id = cb.Id,
-                        benefit = cb.Benefit
+                        benefit = cb.Benefit,
+                        Description = cb.Description,
+                        ScoreNeeded = cb.ScoreNeeded
                     })
                     
                 })
