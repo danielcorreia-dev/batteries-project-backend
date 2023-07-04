@@ -113,19 +113,18 @@ namespace WebApi.Controllers
                 return NotFound("Unable to find company");
             }
 
-            var companyProfileData = await _dbContext.Companies
+            var companyProfileData = await _dbContext.CompanyBenefits
                 .AsNoTracking()
-                .Where(c => c.Id == id)
-                .SelectMany(c => c.Benefits)
+                .Where(cb => cb.CompanyId == id)
                 .Select(cb => new
                 {
-                    Id = cb.Id,
+                    CompanyId = cb.CompanyId,
                     Title = cb.Company.Title,
                     Address = cb.Company.Address,
                     OpenHours = cb.Company.OpeningHours,
                     PhoneNumber = cb.Company.PhoneNumber,
-                    Benefit = cb.Company.Benefits
-                    
+                    Benefit = cb.Benefit,
+                    BenefitId = cb.Id
                 })
                 .ToListAsync(cancellationToken);
 
