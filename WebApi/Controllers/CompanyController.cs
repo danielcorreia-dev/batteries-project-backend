@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Domain.Entities;
 using Domain.Models.Params;
+using Domain.Models.Results;
 using Infrastructure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -303,13 +304,13 @@ namespace WebApi.Controllers
         /// Adicionar pontos ao usuário // cadastrar um novo UserCompanyScore
         /// </summary>
         /// <param name="id">o id da empresa</param>
-        /// <param name="userCompanyScoreModel">O novo UserCompanyScore a ser inserido no banco</param>
+        /// <param name="userCompanyScoreModelParams">O novo UserCompanyScore a ser inserido no banco</param>
         /// <param name="cancellationToken">Usado para cancelar a requisição</param>
         /// <returns>Created()</returns>
         [HttpPost("{id}/user")]
-        public async Task<IActionResult> PostUserCompanyScoresAsync(int id, [FromBody] UserCompanyScoreModel userCompanyScoreModel, CancellationToken cancellationToken)
+        public async Task<IActionResult> PostUserCompanyScoresAsync(int id, [FromBody] UserCompanyScoreModelParams userCompanyScoreModelParams, CancellationToken cancellationToken)
         {
-            if (id != userCompanyScoreModel.CompanyId)
+            if (id != userCompanyScoreModelParams.CompanyId)
             {
                 return BadRequest("The CompanyId of the url is different from the CompanyId of the body");
             }
@@ -321,24 +322,38 @@ namespace WebApi.Controllers
             }
             
             if (!await _dbContext.Users
-                    .AnyAsync(u => u.Id == userCompanyScoreModel.UserId, cancellationToken))
+                    .AnyAsync(u => u.Id == userCompanyScoreModelParams.UserId, cancellationToken))
             {
                 return NotFound("Unable to find user");
             }
 
             if (await _dbContext.UserCompanyScores
                     .AnyAsync(ucs =>
-                        ucs.CompanyId == id && ucs.UserId == userCompanyScoreModel.UserId, cancellationToken))
+                        ucs.CompanyId == id && ucs.UserId == userCompanyScoreModelParams.UserId, cancellationToken))
             {
-                return BadRequest($"CompanyId and UserId must be an unique value. " +
-                                  $"The record with UserId = {userCompanyScoreModel.UserId} and CompanyId = {userCompanyScoreModel.CompanyId} already exists");
+                var dbUserCompanyScore = await _dbContext.UserCompanyScores
+                    .Where(ucs =>
+                        ucs.CompanyId == id && ucs.UserId == userCompanyScoreModelParams.UserId)
+                    .Select(ucs => new UserCompanyScoreModelResult
+                    {
+                        Scores = ucs.Score,
+                        UserId = ucs.UserId,
+                        CompanyId = ucs.CompanyId
+                    })
+                    .SingleOrDefaultAsync(cancellationToken);
+
+                dbUserCompanyScore.Scores += userCompanyScoreModelParams.Scores;
+
+                await _dbContext.SaveChangesAsync(cancellationToken);
+
+                return Created(nameof(GetByIdAsync), dbUserCompanyScore);
             }
             
             var newUsc = new UserCompanyScore()
             {
-                Score = userCompanyScoreModel.Scores,
-                CompanyId = userCompanyScoreModel.CompanyId,
-                UserId = userCompanyScoreModel.UserId,
+                Score = userCompanyScoreModelParams.Scores,
+                CompanyId = userCompanyScoreModelParams.CompanyId,
+                UserId = userCompanyScoreModelParams.UserId,
             };
 
             await _dbContext.UserCompanyScores.AddAsync(newUsc, cancellationToken);
