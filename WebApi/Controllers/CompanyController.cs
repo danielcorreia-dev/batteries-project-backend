@@ -308,61 +308,57 @@ namespace WebApi.Controllers
         /// <param name="userCompanyScoreModelParams">O novo UserCompanyScore a ser inserido no banco</param>
         /// <param name="cancellationToken">Usado para cancelar a requisição</param>
         /// <returns>Created()</returns>
-        [HttpPost("{id}/user")]
-        public async Task<IActionResult> PostUserCompanyScoresAsync(int id, [FromBody] UserCompanyScoreModelParams userCompanyScoreModelParams, CancellationToken cancellationToken)
-        {
-            if (id != userCompanyScoreModelParams.CompanyId)
-            {
-                return BadRequest("The CompanyId of the url is different from the CompanyId of the body");
-            }
-            
-            if (!await _dbContext.Companies
-                    .AnyAsync(c => c.Id == id, cancellationToken))
-            {
-                return NotFound("Unable to find company");
-            }
-            
-            if (!await _dbContext.Users
-                    .AnyAsync(u => u.Id == userCompanyScoreModelParams.UserId, cancellationToken))
-            {
-                return NotFound("Unable to find user");
-            }
+      [HttpPost("{id}/user")]
+      public async Task<IActionResult> PostUserCompanyScoresAsync(int id, [FromBody] UserCompanyScoreModelParams userCompanyScoreModelParams, CancellationToken cancellationToken)
+      {
+          if (id != userCompanyScoreModelParams.CompanyId)
+          {
+              return BadRequest("The CompanyId of the URL is different from the CompanyId of the body");
+          }
 
-            if (await _dbContext.UserCompanyScores
-                    .AnyAsync(ucs =>
-                        ucs.CompanyId == id && ucs.UserId == userCompanyScoreModelParams.UserId, cancellationToken))
-            {
-                var dbUserCompanyScore = await _dbContext.UserCompanyScores
-                    .Where(ucs =>
-                        ucs.CompanyId == id && ucs.UserId == userCompanyScoreModelParams.UserId)
-                    .Select(ucs => new UserCompanyScoreModelResult
-                    {
-                        Scores = ucs.Score,
-                        UserId = ucs.UserId,
-                        CompanyId = ucs.CompanyId
-                    })
-                    .SingleOrDefaultAsync(cancellationToken);
+          var companyExists = await _dbContext.Companies.AnyAsync(c => c.Id == id, cancellationToken);
+          if (!companyExists)
+          {
+              return NotFound("Unable to find company");
+          }
 
-                dbUserCompanyScore.Scores += userCompanyScoreModelParams.Scores;
+          var userExists = await _dbContext.Users.AnyAsync(u => u.Id == userCompanyScoreModelParams.UserId, cancellationToken);
+          if (!userExists)
+          {
+              return NotFound("Unable to find user");
+          }
 
-                await _dbContext.SaveChangesAsync(cancellationToken);
+          var existingUserCompanyScore = await _dbContext.UserCompanyScores.FirstOrDefaultAsync(ucs =>
+              ucs.CompanyId == id && ucs.UserId == userCompanyScoreModelParams.UserId, cancellationToken);
 
-                return Created(nameof(GetByIdAsync), dbUserCompanyScore);
-            }
-            
-            var newUsc = new UserCompanyScore()
-            {
-                Score = userCompanyScoreModelParams.Scores,
-                CompanyId = userCompanyScoreModelParams.CompanyId,
-                UserId = userCompanyScoreModelParams.UserId,
-            };
+          if (existingUserCompanyScore != null)
+          {
+              existingUserCompanyScore.Score += userCompanyScoreModelParams.Scores;
+          }
+          else
+          {
+              var newUserCompanyScore = new UserCompanyScore
+              {
+                  Score = userCompanyScoreModelParams.Scores,
+                  CompanyId = userCompanyScoreModelParams.CompanyId,
+                  UserId = userCompanyScoreModelParams.UserId
+              };
 
-            await _dbContext.UserCompanyScores.AddAsync(newUsc, cancellationToken);
-            
-            await _dbContext.SaveChangesAsync(cancellationToken);
+              await _dbContext.UserCompanyScores.AddAsync(newUserCompanyScore, cancellationToken);
+          }
 
-            return Created(nameof(GetByIdAsync),newUsc);
-        }
+          await _dbContext.SaveChangesAsync(cancellationToken);
+
+          var result = new UserCompanyScoreModelResult
+          {
+              Scores = existingUserCompanyScore?.Score ?? userCompanyScoreModelParams.Scores,
+              UserId = userCompanyScoreModelParams.UserId,
+              CompanyId = userCompanyScoreModelParams.CompanyId
+          };
+
+          return Created(nameof(GetByIdAsync), result);
+      }
+
         
         /// <summary>
         /// Adicionar um novo beneficio a uma empresa
