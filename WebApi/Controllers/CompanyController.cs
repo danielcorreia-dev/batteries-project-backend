@@ -129,7 +129,8 @@ namespace WebApi.Controllers
                         Id = cb.Id,
                         benefit = cb.Benefit,
                         Description = cb.Description,
-                        ScoreNeeded = cb.ScoreNeeded
+                        ScoreNeeded = cb.ScoreNeeded,
+                        Status = cb.Disabled
                     })
                     
                 })
