@@ -479,38 +479,33 @@ namespace WebApi.Controllers
 
             return Ok();
         }
-    }
-
-        /// <summary>
-        /// Delete a benefit from a company
+    
+/// <summary>
+        /// Desabilitar um benefício de uma empresa
         /// </summary>
-        /// <param name="companyId">The id of the company</param>
-        /// <param name="benefitId">The id of the benefit to delete</param>
-        /// <param name="cancellationToken">Used to cancel the request</param>
+        /// <param name="companyId">O id da empresa</param>
+        /// <param name="benefitId">O id do benefício</param>
+        /// <param name="cancellationToken">Usado para cancelar a requisição</param>
         /// <returns>NoContent()</returns>
-        // DELETE: company/{companyId}/benefits/{benefitId}
         [HttpDelete("{companyId}/benefits/{benefitId}")]
-        public async Task<IActionResult> DeleteCompanyBenefitAsync(int companyId, int benefitId, CancellationToken cancellationToken)
+        public async Task<IActionResult> DeleteBenefit(int companyId, int benefitId, CancellationToken cancellationToken)
         {
-            var company = await _dbContext.Companies
-                .Include(c => c.Benefits)
-                .FirstOrDefaultAsync(c => c.Id == companyId, cancellationToken);
-
+            var company = await _dbContext.Companies.FindAsync(companyId);
             if (company == null)
             {
                 return NotFound("Unable to find company");
             }
 
             var benefit = company.Benefits.FirstOrDefault(b => b.Id == benefitId);
-
             if (benefit == null)
             {
                 return NotFound("Unable to find benefit");
             }
 
-            company.Benefits.Remove(benefit);
+            _dbContext.CompanyBenefits.Remove(benefit);
             await _dbContext.SaveChangesAsync(cancellationToken);
 
             return NoContent();
         }
+    }
 }
