@@ -496,13 +496,22 @@ namespace WebApi.Controllers
                 return NotFound("Unable to find company");
             }
 
-            var benefit = company.Benefits.FirstOrDefault(b => b.Id == benefitId);
-            if (benefit == null)
+            if (!await _dbContext.Companies
+                        .Where(c => c.Id == companyId)
+                        .SelectMany(c => c.Benefits)
+                        .AnyAsync(cb => cb.Id == benefitId, cancellationToken))
             {
                 return NotFound("Unable to find benefit");
             }
 
+            var benefit = await _dbContext.Companies
+                .Where(c => c.Id == companyId)
+                .Include(c => c.Benefits)
+                .SelectMany(cb => cb.Benefits)
+                .SingleOrDefaultAsync(cb => cb.Id == benefitId, cancellationToken);
+                
             _dbContext.CompanyBenefits.Remove(benefit);
+            
             await _dbContext.SaveChangesAsync(cancellationToken);
 
             return NoContent();
