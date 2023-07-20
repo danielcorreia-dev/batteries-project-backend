@@ -92,6 +92,7 @@ namespace WebApi.Controllers
                     Id = c.Id,
                     Title = c.Title,
                     Address = c.Address,
+                    ProfilePhoto = _s3Service.GeneratePreSignedUrl(c.User.ProfilePhoto).Result,
                     OpeningHours = c.OpeningHours,
                     PhoneNumber = c.PhoneNumber
                 })
@@ -124,6 +125,7 @@ namespace WebApi.Controllers
                 .Select(c => new
                 {
                     CompanyId = c.Id,
+                    ProfilePhoto = _s3Service.GeneratePreSignedUrl(c.User.ProfilePhoto).Result,
                     Title = c.Title,
                     Address = c.Address,
                     OpenHours = c.OpeningHours,

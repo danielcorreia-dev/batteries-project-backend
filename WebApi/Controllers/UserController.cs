@@ -56,6 +56,7 @@ namespace WebApi.Controllers
                 {
                     Email = u.Email,
                     Nick = u.Nick,
+                    ProfilePhoto = _s3Service.GeneratePreSignedUrl(u.ProfilePhoto).Result,
                     TotalScore = u.Companies.Sum(uc => uc.Score)
                 })
                 .FirstOrDefaultAsync(cancellationToken);
