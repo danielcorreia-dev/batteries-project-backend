@@ -44,7 +44,7 @@ namespace WebApi.Services.AWS.S3
             var deleteRequest = new DeleteObjectRequest
             {
                 BucketName = _configuration.GetSection("AWS")["BucketName"],
-                Key = documentKey // Key is the path of the file to be deleted
+                Key = documentKey
             };
             
             await _s3Client.DeleteObjectAsync(deleteRequest);
@@ -55,7 +55,7 @@ namespace WebApi.Services.AWS.S3
             var downloadRequest = new GetObjectRequest
             {
                 BucketName = _configuration.GetSection("AWS")["BucketName"],
-                Key = documentKey // Key is the path of the file to be downloaded
+                Key = documentKey
             };
             
             var fileStream = await _s3Client.GetObjectAsync(downloadRequest);
@@ -63,9 +63,9 @@ namespace WebApi.Services.AWS.S3
             return fileStream.ResponseStream;
         }
         
-        public async Task<string> GeneratePreSignedUrl(string documentKey)
+        public Task<string> GeneratePreSignedUrl(string documentKey)
         {
-            string urlString = string.Empty;
+            var urlString = string.Empty;
             try
             {
                 var request = new GetPreSignedUrlRequest
@@ -81,7 +81,7 @@ namespace WebApi.Services.AWS.S3
                 Console.WriteLine($"Error: '{e.Message}'");
             }
 
-            return urlString;
+            return Task.FromResult(urlString);
         }
     }
 }
