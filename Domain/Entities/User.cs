@@ -21,6 +21,7 @@ namespace Domain.Entities
         public string Email { get; set; }
         public Guid RefreshToken { get; set; }
         public DateTime ExpiryTime { get; set; }
+        public string ProfilePhoto { get; set; }
         public bool RememberMe { get; set; }
         //Field
         [StringLength(20, MinimumLength = 10)]

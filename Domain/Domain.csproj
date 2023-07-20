@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <PackageReference Include="DataAnnotationsExtensions" Version="5.0.1.27" />
+    <PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="2.2.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Abstractions" Version="5.0.17" />
     <PackageReference Include="Microsoft.Extensions.Identity.Core" Version="5.0.17" />
   </ItemGroup>

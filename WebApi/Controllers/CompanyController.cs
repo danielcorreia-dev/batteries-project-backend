@@ -6,10 +6,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using Domain.Entities;
 using Domain.Models.Params;
+using Domain.Models.Results;
 using Infrastructure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using WebApi.Services.AWS.S3;
 
 namespace WebApi.Controllers
 {
@@ -19,10 +21,13 @@ namespace WebApi.Controllers
     {
 
         private readonly BatteriesProjectDbContext _dbContext;
-        
-        public CompanyController(BatteriesProjectDbContext dbContext)
+        private readonly IS3Service _s3Service;
+        public CompanyController(
+            BatteriesProjectDbContext dbContext,
+            IS3Service s3Service)
         {
             _dbContext = dbContext;
+            _s3Service = s3Service;
         }
 
         /// <summary>
@@ -87,6 +92,7 @@ namespace WebApi.Controllers
                     Id = c.Id,
                     Title = c.Title,
                     Address = c.Address,
+                    ProfilePhoto = _s3Service.GeneratePreSignedUrl(c.User.ProfilePhoto).Result,
                     OpeningHours = c.OpeningHours,
                     PhoneNumber = c.PhoneNumber
                 })
@@ -113,18 +119,26 @@ namespace WebApi.Controllers
                 return NotFound("Unable to find company");
             }
 
-            var companyProfileData = await _dbContext.CompanyBenefits
+            var companyProfileData = await _dbContext.Companies
                 .AsNoTracking()
-                .Where(cb => cb.CompanyId == id)
-                .Select(cb => new
+                .Where(c => c.Id == id)
+                .Select(c => new
                 {
-                    CompanyId = cb.CompanyId,
-                    Title = cb.Company.Title,
-                    Address = cb.Company.Address,
-                    OpenHours = cb.Company.OpeningHours,
-                    PhoneNumber = cb.Company.PhoneNumber,
-                    Benefit = cb.Benefit,
-                    BenefitId = cb.Id
+                    CompanyId = c.Id,
+                    ProfilePhoto = _s3Service.GeneratePreSignedUrl(c.User.ProfilePhoto).Result,
+                    Title = c.Title,
+                    Address = c.Address,
+                    OpenHours = c.OpeningHours,
+                    PhoneNumber = c.PhoneNumber,
+                    Benefit = c.Benefits.Select(cb => new
+                    {
+                        Id = cb.Id,
+                        benefit = cb.Benefit,
+                        Description = cb.Description,
+                        ScoreNeeded = cb.ScoreNeeded,
+                        Status = cb.Disabled
+                    })
+                    
                 })
                 .ToListAsync(cancellationToken);
 
@@ -297,50 +311,60 @@ namespace WebApi.Controllers
         /// Adicionar pontos ao usuário // cadastrar um novo UserCompanyScore
         /// </summary>
         /// <param name="id">o id da empresa</param>
-        /// <param name="userCompanyScoreModel">O novo UserCompanyScore a ser inserido no banco</param>
+        /// <param name="userCompanyScoreModelParams">O novo UserCompanyScore a ser inserido no banco</param>
         /// <param name="cancellationToken">Usado para cancelar a requisição</param>
         /// <returns>Created()</returns>
-        [HttpPost("{id}/user")]
-        public async Task<IActionResult> PostUserCompanyScoresAsync(int id, [FromBody] UserCompanyScoreModel userCompanyScoreModel, CancellationToken cancellationToken)
-        {
-            if (id != userCompanyScoreModel.CompanyId)
-            {
-                return BadRequest("The CompanyId of the url is different from the CompanyId of the body");
-            }
-            
-            if (!await _dbContext.Companies
-                    .AnyAsync(c => c.Id == id, cancellationToken))
-            {
-                return NotFound("Unable to find company");
-            }
-            
-            if (!await _dbContext.Users
-                    .AnyAsync(u => u.Id == userCompanyScoreModel.UserId, cancellationToken))
-            {
-                return NotFound("Unable to find user");
-            }
+      [HttpPost("{id}/user")]
+      public async Task<IActionResult> PostUserCompanyScoresAsync(int id, [FromBody] UserCompanyScoreModelParams userCompanyScoreModelParams, CancellationToken cancellationToken)
+      {
+          if (id != userCompanyScoreModelParams.CompanyId)
+          {
+              return BadRequest("The CompanyId of the URL is different from the CompanyId of the body");
+          }
 
-            if (await _dbContext.UserCompanyScores
-                    .AnyAsync(ucs =>
-                        ucs.CompanyId == id && ucs.UserId == userCompanyScoreModel.UserId, cancellationToken))
-            {
-                return BadRequest($"CompanyId and UserId must be an unique value. " +
-                                  $"The record with UserId = {userCompanyScoreModel.UserId} and CompanyId = {userCompanyScoreModel.CompanyId} already exists");
-            }
-            
-            var newUsc = new UserCompanyScore()
-            {
-                Score = userCompanyScoreModel.Scores,
-                CompanyId = userCompanyScoreModel.CompanyId,
-                UserId = userCompanyScoreModel.UserId,
-            };
+          var companyExists = await _dbContext.Companies.AnyAsync(c => c.Id == id, cancellationToken);
+          if (!companyExists)
+          {
+              return NotFound("Unable to find company");
+          }
 
-            await _dbContext.UserCompanyScores.AddAsync(newUsc, cancellationToken);
-            
-            await _dbContext.SaveChangesAsync(cancellationToken);
+          var userExists = await _dbContext.Users.AnyAsync(u => u.Id == userCompanyScoreModelParams.UserId, cancellationToken);
+          if (!userExists)
+          {
+              return NotFound("Unable to find user");
+          }
 
-            return Created(nameof(GetByIdAsync),newUsc);
-        }
+          var existingUserCompanyScore = await _dbContext.UserCompanyScores.FirstOrDefaultAsync(ucs =>
+              ucs.CompanyId == id && ucs.UserId == userCompanyScoreModelParams.UserId, cancellationToken);
+
+          if (existingUserCompanyScore != null)
+          {
+              existingUserCompanyScore.Score += userCompanyScoreModelParams.Scores;
+          }
+          else
+          {
+              var newUserCompanyScore = new UserCompanyScore
+              {
+                  Score = userCompanyScoreModelParams.Scores,
+                  CompanyId = userCompanyScoreModelParams.CompanyId,
+                  UserId = userCompanyScoreModelParams.UserId
+              };
+
+              await _dbContext.UserCompanyScores.AddAsync(newUserCompanyScore, cancellationToken);
+          }
+
+          await _dbContext.SaveChangesAsync(cancellationToken);
+
+          var result = new UserCompanyScoreModelResult
+          {
+              Scores = existingUserCompanyScore?.Score ?? userCompanyScoreModelParams.Scores,
+              UserId = userCompanyScoreModelParams.UserId,
+              CompanyId = userCompanyScoreModelParams.CompanyId
+          };
+
+          return Created(nameof(GetByIdAsync), result);
+      }
+
         
         /// <summary>
         /// Adicionar um novo beneficio a uma empresa
@@ -460,6 +484,43 @@ namespace WebApi.Controllers
             await _dbContext.SaveChangesAsync(cancellationToken);
 
             return Ok();
+        }
+    
+        /// <summary>
+        /// Desabilitar um benefício de uma empresa
+        /// </summary>
+        /// <param name="companyId">O id da empresa</param>
+        /// <param name="benefitId">O id do benefício</param>
+        /// <param name="cancellationToken">Usado para cancelar a requisição</param>
+        /// <returns>NoContent()</returns>
+        [HttpDelete("{companyId}/benefits/{benefitId}")]
+        public async Task<IActionResult> DeleteBenefit(int companyId, int benefitId, CancellationToken cancellationToken)
+        {
+            var company = await _dbContext.Companies.FindAsync(companyId);
+            if (company == null)
+            {
+                return NotFound("Unable to find company");
+            }
+
+            if (!await _dbContext.Companies
+                        .Where(c => c.Id == companyId)
+                        .SelectMany(c => c.Benefits)
+                        .AnyAsync(cb => cb.Id == benefitId, cancellationToken))
+            {
+                return NotFound("Unable to find benefit");
+            }
+
+            var benefit = await _dbContext.Companies
+                .Where(c => c.Id == companyId)
+                .Include(c => c.Benefits)
+                .SelectMany(cb => cb.Benefits)
+                .SingleOrDefaultAsync(cb => cb.Id == benefitId, cancellationToken);
+                
+            _dbContext.CompanyBenefits.Remove(benefit);
+            
+            await _dbContext.SaveChangesAsync(cancellationToken);
+
+            return NoContent();
         }
     }
 }

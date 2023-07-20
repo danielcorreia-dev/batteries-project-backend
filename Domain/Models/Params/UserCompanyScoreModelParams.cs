@@ -2,14 +2,13 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Domain.Models.Params
 {
-    public record UserCompanyScoreModel
+    public record UserCompanyScoreModelParams
         (
             [Required]
             int CompanyId,
             [Required]
             int UserId,
             [Required]
-            int Scores,
-            bool Owner
+            int Scores
         );
 }
