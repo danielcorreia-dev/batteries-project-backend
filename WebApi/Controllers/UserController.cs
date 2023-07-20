@@ -1,4 +1,7 @@
 
+using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -6,8 +9,11 @@ using Domain.Entities;
 using Domain.Models.Params;
 using Infrastructure;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.EntityFrameworkCore;
+using WebApi.Services.AWS.S3;
 
 namespace WebApi.Controllers
 {
@@ -16,10 +22,14 @@ namespace WebApi.Controllers
     public class UserController : ControllerBase
     {
         private readonly BatteriesProjectDbContext _dbContext;
+        private readonly IS3Service _s3Service;
 
-        public UserController(BatteriesProjectDbContext dbContext)
+        public UserController(
+            BatteriesProjectDbContext dbContext,
+            IS3Service s3Service)
         {
             _dbContext = dbContext;
+            _s3Service = s3Service;
         }
 
         /// <summary>
@@ -35,9 +45,10 @@ namespace WebApi.Controllers
         /// </returns>
         //GET: user/{id}
         [AllowAnonymous]
-        [HttpGet("{id}")]
+        [HttpGet("{id}/profile")]
         public async Task<IActionResult> GetByIdAsync(int id, CancellationToken cancellationToken)
         {
+            
             var dbUser = await _dbContext.Users
                 .AsNoTracking()
                 .Where(u => u.Id == id)
@@ -45,10 +56,11 @@ namespace WebApi.Controllers
                 {
                     Email = u.Email,
                     Nick = u.Nick,
+                    ProfilePhoto = _s3Service.GeneratePreSignedUrl(u.ProfilePhoto).Result,
                     TotalScore = u.Companies.Sum(uc => uc.Score)
                 })
                 .FirstOrDefaultAsync(cancellationToken);
-
+            
             if (dbUser == null)
             {
                 return NotFound("Unable to find User");
@@ -260,6 +272,146 @@ namespace WebApi.Controllers
             
             return Ok(userCompany);
 
+        }
+        
+        /// <summary>
+        /// Fazer upload da foto de perfil do usuário
+        /// </summary>
+        /// <param name="file">A foto de perfil do usuairo</param>
+        /// <param name="id">O Id do usuario a que pertence a foto</param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        [HttpPost("{id}/profile-photo/upload")]
+        [AllowAnonymous]
+        public async Task<IActionResult> UploadProfilePicture(IFormFile file, int id, CancellationToken cancellationToken)
+        {
+            
+            //check if the user not exists
+            if (!await _dbContext.Users.AnyAsync(u => u.Id == id, cancellationToken))
+            {
+                return NotFound("Unable to find User");
+            }
+
+            var dbUser = await _dbContext.Users
+                    .SingleOrDefaultAsync(u => u.Id == id, cancellationToken);
+            
+            string fileExtension = Path.GetExtension(file.FileName).ToLower();
+            List<string> allowedExtensions = new List<string>() { ".jpg", ".jpeg", ".png" };
+            if (!allowedExtensions.Contains(fileExtension))
+                return BadRequest("File Format not supported");
+
+            int maxFileSize = 5000000;
+            if (file.Length > maxFileSize)
+                return BadRequest("File size too large");
+            
+            //check if the user has no profile photo
+            if(String.IsNullOrEmpty(dbUser.ProfilePhoto))
+            {
+                //create a unique file name
+                var newUniqueFileName = Guid.NewGuid().ToString();
+            
+                var media = new Media()
+                {
+                    Name = file.FileName,
+                    Path = $"uploads/{newUniqueFileName}/{file.FileName}"
+                };
+
+                //save to database the new profile photo reference
+                dbUser.ProfilePhoto = media.Path;
+                //save the file format
+                await _dbContext.SaveChangesAsync(cancellationToken);
+
+                //save to s3 new profile photo
+                var uploadedMedia = _s3Service.Upload(media, file);
+            
+                return Ok(uploadedMedia);
+            }
+
+            //create a unique file name
+            var uniqueFileName = Guid.NewGuid().ToString();
+            
+            var newMedia = new Media()
+            {
+                Name = file.FileName,
+                Path = $"uploads/{uniqueFileName}/{file.FileName}"
+            };
+
+            //delete the old profile photo from s3
+            _s3Service.Remove(dbUser.ProfilePhoto);
+            
+            //save to database the new profile photo reference
+            dbUser.ProfilePhoto = newMedia.Path;
+            await _dbContext.SaveChangesAsync(cancellationToken);
+            
+            //save to s3 new profile photo
+            var newUploadedMedia = _s3Service.Upload(newMedia, file);
+            
+            return Ok(newUploadedMedia);
+        }
+
+        /// <summary>
+        /// Baixar a foto de perfil do usuário
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        [HttpGet("{id}/profile-photo")]
+        [AllowAnonymous]
+        public async Task<IActionResult> DownloadProfilePicture(int id, CancellationToken cancellationToken)
+        {
+            var profilePhoto = await _dbContext.Users
+                .Where(u => u.Id == id)
+                .Select(u => u.ProfilePhoto)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (string.IsNullOrEmpty(profilePhoto))
+                NotFound("User has no profile photo");
+            
+            var contents = new Dictionary<string, Stream>
+            {
+                ["file"] = await _s3Service.Download(profilePhoto)
+            };
+            
+            var fileNameWithExtension = Path.GetFileName(profilePhoto);
+            var fileExtension = Path.GetExtension(fileNameWithExtension);
+            var contentType = new FileExtensionContentTypeProvider().Mappings[fileExtension] ;
+
+            return File(contents["file"], contentType, fileNameWithExtension);
+        }
+        
+        /// <summary>
+        /// Remover a foto de perfil do usuário
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        [HttpDelete("{id}/profile-photo/remove")]
+        [AllowAnonymous]
+        public async Task<IActionResult> RemoveProfilePhoto(int id, CancellationToken cancellationToken)
+        {
+            //check if the user exists
+            if (!await _dbContext.Users.AnyAsync(u => u.Id == id, cancellationToken))
+            {
+                return NotFound("Unable to find User");
+            }
+
+            var dbUser = await _dbContext.Users
+                .SingleOrDefaultAsync(u => u.Id == id, cancellationToken);
+
+            //check if the user has a profile photo
+            if (String.IsNullOrEmpty(dbUser.ProfilePhoto))
+            {
+                return NotFound("User has no profile photo");
+            }
+
+            //delete the old profile photo from s3
+            _s3Service.Remove(dbUser.ProfilePhoto);
+
+            //save to database the new profile photo reference
+            dbUser.ProfilePhoto = null;
+            await _dbContext.SaveChangesAsync(cancellationToken);
+
+            return Ok("Profile photo removed");
         }
     }
 }
