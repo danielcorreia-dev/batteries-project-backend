@@ -1,4 +1,8 @@
 ﻿using System;
+using Amazon;
+using Amazon.Runtime;
+using Amazon.Runtime.CredentialManagement;
+using Amazon.S3;
 using Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -6,6 +10,13 @@ using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
 using WebApi.Interfaces;
 using WebApi.Services;
+using WebApi.Services.AWS.S3;
+using Amazon.Extensions.NETCore.Setup;
+using Amazon.Runtime;
+using Amazon.S3;
+using Domain.Models.Params;
+using Microsoft.Extensions.Configuration;
+
 
 namespace WebApi
 {
@@ -19,6 +30,9 @@ namespace WebApi
             services.AddScoped<IBatteriesProjectDbContext>( provider => provider.GetService<BatteriesProjectDbContext>());
             services.AddScoped<ITokenService, TokenService>();
             services.AddScoped<IRefreshTokenService, RefreshTokenService>();
+            services.AddScoped<IS3Service, S3Service>();
+            services.AddAWSService<IAmazonS3>();
+
             
             return services;
         }
