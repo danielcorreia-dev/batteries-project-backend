@@ -282,7 +282,6 @@ namespace WebApi.Controllers
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         [HttpPost("{id}/profile-photo/upload")]
-        [AllowAnonymous]
         public async Task<IActionResult> UploadProfilePicture(IFormFile file, int id, CancellationToken cancellationToken)
         {
             
@@ -356,7 +355,6 @@ namespace WebApi.Controllers
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         [HttpGet("{id}/profile-photo")]
-        [AllowAnonymous]
         public async Task<IActionResult> DownloadProfilePicture(int id, CancellationToken cancellationToken)
         {
             var profilePhoto = await _dbContext.Users
@@ -386,7 +384,6 @@ namespace WebApi.Controllers
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         [HttpDelete("{id}/profile-photo/remove")]
-        [AllowAnonymous]
         public async Task<IActionResult> RemoveProfilePhoto(int id, CancellationToken cancellationToken)
         {
             //check if the user exists
