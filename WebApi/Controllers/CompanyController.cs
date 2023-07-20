@@ -11,6 +11,7 @@ using Infrastructure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using WebApi.Services.AWS.S3;
 
 namespace WebApi.Controllers
 {
@@ -20,10 +21,13 @@ namespace WebApi.Controllers
     {
 
         private readonly BatteriesProjectDbContext _dbContext;
-        
-        public CompanyController(BatteriesProjectDbContext dbContext)
+        private readonly IS3Service _s3Service;
+        public CompanyController(
+            BatteriesProjectDbContext dbContext,
+            IS3Service s3Service)
         {
             _dbContext = dbContext;
+            _s3Service = s3Service;
         }
 
         /// <summary>
@@ -480,7 +484,7 @@ namespace WebApi.Controllers
             return Ok();
         }
     
-/// <summary>
+        /// <summary>
         /// Desabilitar um benefício de uma empresa
         /// </summary>
         /// <param name="companyId">O id da empresa</param>

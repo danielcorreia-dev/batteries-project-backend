@@ -1,4 +1,7 @@
 
+using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -6,8 +9,11 @@ using Domain.Entities;
 using Domain.Models.Params;
 using Infrastructure;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.EntityFrameworkCore;
+using WebApi.Services.AWS.S3;
 
 namespace WebApi.Controllers
 {
@@ -16,10 +22,14 @@ namespace WebApi.Controllers
     public class UserController : ControllerBase
     {
         private readonly BatteriesProjectDbContext _dbContext;
+        private readonly IS3Service _s3Service;
 
-        public UserController(BatteriesProjectDbContext dbContext)
+        public UserController(
+            BatteriesProjectDbContext dbContext,
+            IS3Service s3Service)
         {
             _dbContext = dbContext;
+            _s3Service = s3Service;
         }
 
         /// <summary>
@@ -35,9 +45,10 @@ namespace WebApi.Controllers
         /// </returns>
         //GET: user/{id}
         [AllowAnonymous]
-        [HttpGet("{id}")]
+        [HttpGet("{id}/profile")]
         public async Task<IActionResult> GetByIdAsync(int id, CancellationToken cancellationToken)
         {
+            
             var dbUser = await _dbContext.Users
                 .AsNoTracking()
                 .Where(u => u.Id == id)
@@ -48,7 +59,7 @@ namespace WebApi.Controllers
                     TotalScore = u.Companies.Sum(uc => uc.Score)
                 })
                 .FirstOrDefaultAsync(cancellationToken);
-
+            
             if (dbUser == null)
             {
                 return NotFound("Unable to find User");
@@ -261,5 +272,6 @@ namespace WebApi.Controllers
             return Ok(userCompany);
 
         }
+        
     }
 }
