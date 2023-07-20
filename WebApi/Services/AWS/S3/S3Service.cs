@@ -72,7 +72,7 @@ namespace WebApi.Services.AWS.S3
                 {
                     BucketName = _configuration.GetSection("AWS")["BucketName"],
                     Key = documentKey,
-                    Expires = DateTime.Now.AddDays(12)
+                    Expires = DateTime.Now.AddHours(12)
                 };
                 urlString = _s3Client.GetPreSignedURL(request);
             }
