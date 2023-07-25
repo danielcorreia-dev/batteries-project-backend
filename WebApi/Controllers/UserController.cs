@@ -125,6 +125,14 @@ namespace WebApi.Controllers
 
             var dbUsers = await _dbContext.Users
                 .AsNoTracking()
+                .Select(u => new
+                {
+                  Id = u.Id,
+                  Email = u.Email,
+                  Nick = u.Nick,
+                  ProfilePhoto = _s3Service.GeneratePreSignedUrl(u.ProfilePhoto).Result,
+                  TotalScore = u.Companies.Sum(uc => uc.Score)
+                })
                 .ToListAsync(cancellationToken);
 
             return Ok(dbUsers);
