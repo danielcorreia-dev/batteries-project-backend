@@ -49,7 +49,7 @@ namespace WebApi.Services
                 tokenDescriptor = new SecurityTokenDescriptor
                 {
                     Subject = new ClaimsIdentity(identity),
-                    Expires = DateTime.UtcNow.AddMinutes(30),
+                    Expires = DateTime.UtcNow.AddDays(730),
                     SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
                 };
             }
@@ -59,7 +59,7 @@ namespace WebApi.Services
                 tokenDescriptor = new SecurityTokenDescriptor
                 {
                     Subject = new ClaimsIdentity(claimsPrincipal.Claims),
-                    Expires = DateTime.UtcNow.AddMinutes(30),
+                    Expires = DateTime.UtcNow.AddDays(730),
                     SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
                 };
             }
