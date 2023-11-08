@@ -14,6 +14,7 @@ namespace Infrastructure
         public DbSet<CompanyBenefit> CompanyBenefits { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<Company> Companies { get; set; }
+        public DbSet<ErrorLog> ErrorLogs { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
